@@ -21,14 +21,17 @@ TeXClean is a GUI front-end for cleaning LaTeX documents of track changes markup
 
 ```
 texclean/
-├── texclean.py           # Main GUI application
-├── cleaner_wrapper.py    # Integration layer for cleaning scripts
-├── python-src/
-│   ├── trackchanges-py3/AcceptChanges3/  # TrackChanges cleaning module
-│   ├── trackchanges-py3/acceptchanges3.py # TrackChanges CLI wrapper
-│   └── changes/pyMergeChanges.py          # Changes package cleaner
+├── texclean/
+│   ├── __main__.py       # Package entry point
+│   ├── app.py            # Main GUI application
+│   ├── wrapper.py        # Integration layer for cleaning scripts
+│   └── scripts/
+│       ├── trackchanges-py3/
+│       │   └── acceptchanges3.py # TrackChanges CLI wrapper
+│       └── changes/
+│           └── pyMergeChanges.py # Changes package cleaner
 └── docs/
-    └── latex_track_change.md              # Original documentation
+    └── latex_track_change.md     # Original documentation
 ```
 
 ## Cleaning Operations
@@ -63,5 +66,5 @@ All dependencies must be installed in the `docflow` conda environment:
 
 ```bash
 conda activate docflow
-python texclean.py
+python -m texclean
 ```
