@@ -212,6 +212,61 @@ def clean_arxiv(folder_path, im_size=500, callback=None):
         return False, f"Error running arXiv cleaner: {str(e)}"
 
 
+import re
+
+
+TRACKCHANGES_PATTERNS = [
+    re.compile(r'\\annote\s*[{[]'),
+    re.compile(r'\\note\s*[{[]'),
+    re.compile(r'\\add\s*[{[]'),
+    re.compile(r'\\remove\s*[{[]'),
+    re.compile(r'\\change\s*[{[]'),
+]
+
+CHANGES_PATTERNS = [
+    re.compile(r'\\added\s*[{[]'),
+    re.compile(r'\\deleted\s*[{[]'),
+    re.compile(r'\\replaced\s*[{[]'),
+    re.compile(r'\\highlight\s*[{[]'),
+    re.compile(r'\\comment\s*[{[]'),
+]
+
+
+def detect_cleaning_module(input_file):
+    if os.path.isdir(input_file):
+        return None
+
+    if not os.path.exists(input_file):
+        return None
+
+    try:
+        with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read(20000)
+    except Exception:
+        return None
+
+    trackchanges_score = 0
+    for pattern in TRACKCHANGES_PATTERNS:
+        if pattern.search(content):
+            trackchanges_score += 1
+
+    changes_score = 0
+    for pattern in CHANGES_PATTERNS:
+        if pattern.search(content):
+            changes_score += 1
+
+    if changes_score > 0 and trackchanges_score == 0:
+        return "changes"
+    elif trackchanges_score > 0 and changes_score == 0:
+        return "trackchanges"
+    elif changes_score > trackchanges_score:
+        return "changes"
+    elif trackchanges_score > changes_score:
+        return "trackchanges"
+    else:
+        return None
+
+
 def generate_output_filename(input_path, suffix="-cleaned"):
     """
     Generate output filename by adding a suffix before the extension.
