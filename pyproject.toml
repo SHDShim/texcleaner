@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "texclean"
+dynamic = ["version"]
+description = "A GUI front-end for cleaning LaTeX track changes"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+authors = [
+    {name = "Dan Shim"}
+]
+requires-python = ">=3.8"
+dependencies = [
+    "arxiv-latex-cleaner"
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "twine",
+    "pytest"
+]
+
+[project.scripts]
+texclean = "texclean.app:main"
+
+[tool.setuptools]
+package-data = {texclean = ["scripts/**/*.py", "scripts/**/*"]}
+
+[tool.setuptools.dynamic]
+version = {attr = "texclean.version.__version__"}

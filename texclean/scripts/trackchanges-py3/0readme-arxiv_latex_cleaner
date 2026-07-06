@@ -1,0 +1,19 @@
+# What is it?
+
+My specific purpose is to remove all the comments from tex files.
+
+This tool allows you to easily clean the LaTeX code of your paper to submit to arXiv. From a folder containing all your code, e.g. /path/to/latex/, it creates a new folder /path/to/latex_arXiv/, that is ready to ZIP and upload to arXiv.
+
+# How to use
+
+arxiv_latex_cleaner ../path/to/latex --resize_images --im_size 500
+
+# Where to find installation
+
+Homebrew.  
+
+brew install arxiv_latex_cleaner
+
+or pip install is possible.  Check the website
+
+https://github.com/google-research/arxiv-latex-cleaner
