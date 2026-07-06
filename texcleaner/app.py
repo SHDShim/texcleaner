@@ -21,10 +21,10 @@ from .wrapper import (
 from .version import __version__
 
 
-class TeXCleanApp:
+class TeXCleanerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title(f"TeXClean v{__version__} - LaTeX Track Changes Cleaner")
+        self.root.title(f"TeXCleaner v{__version__} - LaTeX Track Changes Cleaner")
         self.root.geometry("700x500")
         self.root.resizable(True, True)
 
@@ -304,5 +304,5 @@ class TeXCleanApp:
 
 def main():
     root = tk.Tk()
-    app = TeXCleanApp(root)
+    app = TeXCleanerApp(root)
     root.mainloop()

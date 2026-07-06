@@ -1,6 +1,7 @@
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 """
+0.4.0 Renamed project from TeXClean to TeXCleaner.
 0.3.0 Added auto-detection of trackchanges vs changes packages.
       Restructured GUI with separate tabs for Track Changes and arXiv cleaning.
       Detection workflow asks user to confirm before cleaning.

@@ -1,5 +1,5 @@
 """
-TeXClean - A GUI front-end for cleaning LaTeX track changes.
+TeXCleaner - A GUI front-end for cleaning LaTeX track changes.
 
 Supports cleaning track changes from:
 - trackchanges.sty

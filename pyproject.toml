@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "texclean"
+name = "texcleaner"
 dynamic = ["version"]
 description = "A GUI front-end for cleaning LaTeX track changes"
 readme = "README.md"
@@ -24,10 +24,10 @@ dev = [
 ]
 
 [project.scripts]
-texclean = "texclean.app:main"
+texcleaner = "texcleaner.app:main"
 
 [tool.setuptools]
-package-data = {texclean = ["scripts/**/*.py", "scripts/**/*"]}
+package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*"]}
 
 [tool.setuptools.dynamic]
-version = {attr = "texclean.version.__version__"}
+version = {attr = "texcleaner.version.__version__"}

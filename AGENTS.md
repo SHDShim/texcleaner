@@ -1,4 +1,4 @@
-# TeXClean - LaTeX Track Changes Cleaning Tool
+# TeXCleaner - LaTeX Track Changes Cleaning Tool
 
 ## Environment
 
@@ -11,7 +11,7 @@ conda activate docflow
 
 ## Project Overview
 
-TeXClean is a GUI front-end for cleaning LaTeX documents of track changes markup from three different LaTeX packages:
+TeXCleaner is a GUI front-end for cleaning LaTeX documents of track changes markup from three different LaTeX packages:
 
 1. **TrackChanges** - The `trackchanges.sty` package
 2. **Changes** - The `changes.sty` package
@@ -20,8 +20,8 @@ TeXClean is a GUI front-end for cleaning LaTeX documents of track changes markup
 ## Architecture
 
 ```
-texclean/
-├── texclean/
+texcleaner/
+├── texcleaner/
 │   ├── __main__.py       # Package entry point
 │   ├── app.py            # Main GUI application
 │   ├── wrapper.py        # Integration layer for cleaning scripts
@@ -66,5 +66,5 @@ All dependencies must be installed in the `docflow` conda environment:
 
 ```bash
 conda activate docflow
-python -m texclean
+python -m texcleaner
 ```

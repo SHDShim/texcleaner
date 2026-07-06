@@ -1,10 +1,10 @@
-# TeXClean
+# TeXCleaner
 
 A GUI front-end for cleaning LaTeX documents of track changes markup.
 
 ## Features
 
-TeXClean supports cleaning track changes from three different LaTeX packages:
+TeXCleaner supports cleaning track changes from three different LaTeX packages:
 
 1. **TrackChanges** - For documents using `trackchanges.sty`
 2. **Changes** - For documents using `changes.sty`
@@ -15,20 +15,20 @@ TeXClean supports cleaning track changes from three different LaTeX packages:
 ### From PyPI (Recommended)
 
 ```bash
-pip install texclean
+pip install texcleaner
 ```
 
 After installation, you can run the application with:
 
 ```bash
-texclean
+texcleaner
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/texclean.git
-cd texclean
+git clone https://github.com/yourusername/texcleaner.git
+cd texcleaner
 pip install -e .
 ```
 
@@ -42,13 +42,13 @@ pip install -e .
 1. Run the application:
 
 ```bash
-texclean
+texcleaner
 ```
 
    Or if running from source:
 
 ```bash
-python -m texclean.app
+python -m texcleaner.app
 ```
 
 2. Select your input file or folder:
