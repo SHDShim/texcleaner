@@ -149,3 +149,7 @@ Icon
 # pyproject.toml local files
 dist/
 *.egg-info/
+
+# Examples
+examples/
+*-cleaned.tex
