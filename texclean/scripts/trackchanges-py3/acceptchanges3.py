@@ -92,7 +92,7 @@ def searchCommand(line, output, startpos):
 	  
 	if DEBUG:
 		print("looking for start of command at:", startpos, "in line:", line)
-	match = re.search('(\\\\annote.*?[\[{])|(\\\\note.*?[\[{])|(\\\\add.*?[\[{])|(\\\\remove.*?[\[{])|(\\\\change.*?[\[{])', line[startpos:])
+	match = re.search('(\\\\annote\s*[\[{])|(\\\\note\s*[\[{])|(\\\\add\s*[\[{])|(\\\\remove\s*[\[{])|(\\\\change\s*[\[{])', line[startpos:])
 	if match:
 		if match.group(1):
 			if DEBUG:

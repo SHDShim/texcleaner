@@ -60,7 +60,7 @@ def parse_param(parstr):
         parout = 'i'
     return parout
 
-def ask1(): # accept, reject, keep, break
+def ask1():
     if PARAMS == 'i':
         while True:
             ans = input('[a]ccept or [r]eject or [k]eep or [b]reak ? ').lower()
@@ -86,7 +86,7 @@ def ask1(): # accept, reject, keep, break
         ans = 'k'
     return ans
 
-def ask2(): # remove, keep, break
+def ask2():
     if PARAMS == 'i':
         while True:
             ans = input('[r]emove or [k]eep or [b]reak ? ').lower()
@@ -108,18 +108,42 @@ def ask2(): # remove, keep, break
         ans = 'k'
     return ans
 
-def trim_space(line, pos): # trim two consecutive white spaces
-    if line[pos-1:pos+1] == '  ':
-        line = line[:pos] + line[pos+1:]
-    return line
+def trim_space(text, pos):
+    if text[pos-1:pos+1] == '  ':
+        text = text[:pos] + text[pos+1:]
+    return text
 
-# BEGIN OF SCRIPT
+def find_matching_brace(text, start):
+    if text[start] != '{':
+        return -1
+    count = 1
+    pos = start + 1
+    while pos < len(text) and count > 0:
+        if text[pos] == '{':
+            count += 1
+        elif text[pos] == '}':
+            count -= 1
+        pos += 1
+    if count == 0:
+        return pos - 1
+    return -1
+
+def get_arg_content(text, brace_start):
+    end = find_matching_brace(text, brace_start)
+    if end == -1:
+        return None, -1
+    return text[brace_start + 1:end], end
+
+RE_ADDED = re.compile(r'(\\added)(\[[^\]]*\])?\{')
+RE_DELETED = re.compile(r'(\\deleted)(\[[^\]]*\])?\{')
+RE_REPLACED = re.compile(r'(\\replaced)(\[[^\]]*\])?\{')
+RE_HIGHLIGHT = re.compile(r'(\\highlight)(\[[^\]]*\])?\{')
+RE_COMMENT = re.compile(r'(\\comment)(\[[^\]]*\])?\{')
 
 if len(sys.argv) not in [3, 4]:
     print(__doc__)
     sys.exit(1)
 
-# parse input parameters
 if len(sys.argv) == 3:
     print('Running in interactive mode. ')
     INPUTFILE, OUTPUTFILE = sys.argv[1:]
@@ -132,148 +156,150 @@ if INPUTFILE == OUTPUTFILE:
     print('Input File and Output File must be different.')
     sys.exit(1)
 
-RE_ADDED = re.compile(r'(\\added)(\[[^\]]*\])?\{(([^\}]?(\{[^\}]*\})?)*)\}')
-RE_DELETED = re.compile(r'(\\deleted)(\[[^\]]*\])?\{(([^\}]?(\{[^\}]*\})?)*)\}')
-RE_REPLACED = re.compile(r'(\\replaced)(\[[^\]]*\])?\{(([^\}]?(\{[^\}]*\})?)*)\}\{(([^\}]?(\{[^\}]*\})?)*)\}')
-RE_HIGHLIGHT = re.compile(r'(\\highlight)(\[[^\]]*\])?\{(([^\}]?(\{[^\}]*\})?)*)\}')
-RE_COMMENT = re.compile(r'(\\comment)(\[[^\]]*\])?\{(([^\}]?(\{[^\}]*\})?)*)\}')
+with codecs.open(INPUTFILE, mode='r', encoding='utf8') as fin:
+    content = fin.read()
 
-codecs.open(OUTPUTFILE, mode='w', encoding='utf8').close()
-with codecs.open(INPUTFILE, mode='r', encoding='utf8') as fin, \
-codecs.open(OUTPUTFILE, mode='a', encoding='utf8') as fout:
-    LINE_COUNT = 0
-    FLAG_FAST_BREAK = False # if you want to halt merging for some reason
-    for linein in fin:
+FLAG_FAST_BREAK = False
+matchAdded = RE_ADDED.search(content)
+matchDeleted = RE_DELETED.search(content)
+matchReplaced = RE_REPLACED.search(content)
+matchHighlight = RE_HIGHLIGHT.search(content)
+matchComment = RE_COMMENT.search(content)
+has_commits = matchAdded or matchDeleted or matchReplaced or matchHighlight or matchComment
+
+if not has_commits:
+    with codecs.open(OUTPUTFILE, mode='w', encoding='utf8') as fout:
+        fout.write(content)
+else:
+    while matchAdded:
         if FLAG_FAST_BREAK:
-            fout.write(linein)
+            break
+        print('\n** add commit ** \n' + matchAdded.group())
+        answer = ask1()
+        cmd_end = matchAdded.end(0)
+        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
+        if arg_content is None:
+            matchAdded = RE_ADDED.search(content, cmd_end + 1)
             continue
-        LINE_COUNT += 1
-        lineout = linein
-        matchAdded = RE_ADDED.search(lineout)
-        matchDeleted = RE_DELETED.search(lineout)
-        matchReplaced = RE_REPLACED.search(lineout)
-        matchHighlight = RE_HIGHLIGHT.search(lineout)
-        matchComment = RE_COMMENT.search(lineout)
-        flagHasCommit = matchAdded or matchDeleted or matchReplaced or matchHighlight or matchComment
-        if flagHasCommit:
-            print('\n******** In Line %i :\n %s' % (LINE_COUNT, lineout))
-            next_pos = 0
-            while matchAdded:
-                if FLAG_FAST_BREAK:
-                    break
-                print('\n** add commit ** \n' + matchAdded.group())
-                answer = ask1()
-                if answer == 'a':
-                    lineout = (lineout[:matchAdded.start(0)]
-                               + matchAdded.group(3) + lineout[matchAdded.end(0):])
-                    lineout = trim_space(lineout, matchAdded.start(0)
-                                         + len(matchAdded.group(3)))
-                    lineout = trim_space(lineout, matchAdded.start(0))
-                elif answer == 'r':
-                    lineout = (lineout[:matchAdded.start(0)] + lineout[matchAdded.end(0):])
-                    lineout = trim_space(lineout, matchAdded.start(0))
-                elif answer == 'k':
-                    lineout = lineout
-                    next_pos = matchAdded.end(0)
-                elif answer == 'b':
-                    FLAG_FAST_BREAK = True
-                    break
-                matchAdded = RE_ADDED.search(lineout, next_pos) # redo matching for updated text
+        if answer == 'a':
+            content = (content[:matchAdded.start(0)]
+                       + arg_content + content[brace_end + 1:])
+            content = trim_space(content, matchAdded.start(0) + len(arg_content))
+            content = trim_space(content, matchAdded.start(0))
+            matchAdded = RE_ADDED.search(content, matchAdded.start(0) + len(arg_content))
+        elif answer == 'r':
+            content = (content[:matchAdded.start(0)] + content[brace_end + 1:])
+            content = trim_space(content, matchAdded.start(0))
+            matchAdded = RE_ADDED.search(content, matchAdded.start(0))
+        elif answer == 'k':
+            matchAdded = RE_ADDED.search(content, brace_end + 1)
+        elif answer == 'b':
+            FLAG_FAST_BREAK = True
+            break
 
-            next_pos = 0
-            matchDeleted = RE_DELETED.search(lineout, next_pos)  # redo matching for (potentially) updated text
-            while matchDeleted:
-                if FLAG_FAST_BREAK:
-                    break
-                print('\n** delete commit ** \n' + matchDeleted.group())
-                answer = ask1()
-                if answer == 'a':
-                    lineout = (lineout[:matchDeleted.start(0)] + lineout[matchDeleted.end(0):])
-                    lineout = trim_space(lineout, matchDeleted.start(0))
-                elif answer == 'r':
-                    lineout = (lineout[:matchDeleted.start(0)] + matchDeleted.group(3)
-                               + lineout[matchDeleted.end(0):])
-                elif answer == 'k':
-                    lineout = lineout
-                    next_pos = matchDeleted.end(0)
-                elif answer == 'b':
-                    FLAG_FAST_BREAK = True
-                    break
-                matchDeleted = RE_DELETED.search(lineout, next_pos)
+    matchDeleted = RE_DELETED.search(content)
+    while matchDeleted:
+        if FLAG_FAST_BREAK:
+            break
+        print('\n** delete commit ** \n' + matchDeleted.group())
+        answer = ask1()
+        cmd_end = matchDeleted.end(0)
+        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
+        if arg_content is None:
+            matchDeleted = RE_DELETED.search(content, cmd_end + 1)
+            continue
+        if answer == 'a':
+            content = (content[:matchDeleted.start(0)] + content[brace_end + 1:])
+            content = trim_space(content, matchDeleted.start(0))
+            matchDeleted = RE_DELETED.search(content, matchDeleted.start(0))
+        elif answer == 'r':
+            content = (content[:matchDeleted.start(0)] + arg_content
+                       + content[brace_end + 1:])
+            content = trim_space(content, matchDeleted.start(0) + len(arg_content))
+            content = trim_space(content, matchDeleted.start(0))
+            matchDeleted = RE_DELETED.search(content, matchDeleted.start(0) + len(arg_content))
+        elif answer == 'k':
+            matchDeleted = RE_DELETED.search(content, brace_end + 1)
+        elif answer == 'b':
+            FLAG_FAST_BREAK = True
+            break
 
-            next_pos = 0
-            matchReplaced = RE_REPLACED.search(lineout, next_pos)  # redo matching for (potentially) updated text
-            while matchReplaced:
-                if FLAG_FAST_BREAK:
-                    break
-                print('\n** replace commit ** \n' + matchReplaced.group())
-                answer = ask1()
-                if answer == 'a':
-                    lineout = (lineout[:matchReplaced.start(0)]
-                               + matchReplaced.group(3) + lineout[matchReplaced.end(0):])
-                    lineout = trim_space(lineout, matchReplaced.start(0)
-                                         + len(matchReplaced.group(3)))
-                    lineout = trim_space(lineout, matchReplaced.start(0))
-                elif answer == 'r':
-                    lineout = (lineout[:matchReplaced.start(0)]
-                               + matchReplaced.group(6) + lineout[matchReplaced.end(0):])
-                    lineout = trim_space(lineout, matchReplaced.start(0)
-                                         + len(matchReplaced.group(6)))
-                    lineout = trim_space(lineout, matchReplaced.start(0))
-                elif answer == 'k':
-                    lineout = lineout
-                    next_pos = matchReplaced.end(0)
-                elif answer == 'b':
-                    FLAG_FAST_BREAK = True
-                    break
-                matchReplaced = RE_REPLACED.search(lineout, next_pos)
+    matchReplaced = RE_REPLACED.search(content)
+    while matchReplaced:
+        if FLAG_FAST_BREAK:
+            break
+        print('\n** replace commit ** \n' + matchReplaced.group())
+        answer = ask1()
+        cmd_end = matchReplaced.end(0)
+        arg1_content, brace_end1 = get_arg_content(content, cmd_end - 1)
+        if arg1_content is None:
+            matchReplaced = RE_REPLACED.search(content, cmd_end + 1)
+            continue
+        arg2_content, brace_end2 = get_arg_content(content, brace_end1 + 1)
+        if arg2_content is None:
+            matchReplaced = RE_REPLACED.search(content, brace_end1 + 1)
+            continue
+        if answer == 'a':
+            content = (content[:matchReplaced.start(0)]
+                       + arg1_content + content[brace_end2 + 1:])
+            content = trim_space(content, matchReplaced.start(0) + len(arg1_content))
+            content = trim_space(content, matchReplaced.start(0))
+            matchReplaced = RE_REPLACED.search(content, matchReplaced.start(0) + len(arg1_content))
+        elif answer == 'r':
+            content = (content[:matchReplaced.start(0)]
+                       + arg2_content + content[brace_end2 + 1:])
+            content = trim_space(content, matchReplaced.start(0) + len(arg2_content))
+            content = trim_space(content, matchReplaced.start(0))
+            matchReplaced = RE_REPLACED.search(content, matchReplaced.start(0) + len(arg2_content))
+        elif answer == 'k':
+            matchReplaced = RE_REPLACED.search(content, brace_end2 + 1)
+        elif answer == 'b':
+            FLAG_FAST_BREAK = True
+            break
 
-            next_pos = 0
-            matchHighlight = RE_HIGHLIGHT.search(lineout, next_pos)  # redo matching for (potentially) updated text
-            while matchHighlight:
-                if FLAG_FAST_BREAK:
-                    break
-                print('\n** highlight commit ** \n' + matchHighlight.group())
-                answer = ask2()
-                if answer == 'r':
-                    lineout = (lineout[:matchHighlight.start(0)]
-                               + matchHighlight.group(3) + lineout[matchHighlight.end(0):])
-                    lineout = trim_space(lineout, matchHighlight.start(0)
-                                         + len(matchHighlight.group(3)))
-                    lineout = trim_space(lineout, matchHighlight.start(0))
-                elif answer == 'k':
-                    lineout = lineout
-                    next_pos = matchHighlight.end(0)
-                elif answer == 'b':
-                    FLAG_FAST_BREAK = True
-                    break
-                matchHighlight = RE_HIGHLIGHT.search(lineout, next_pos)
+    matchHighlight = RE_HIGHLIGHT.search(content)
+    while matchHighlight:
+        if FLAG_FAST_BREAK:
+            break
+        print('\n** highlight commit ** \n' + matchHighlight.group())
+        answer = ask2()
+        cmd_end = matchHighlight.end(0)
+        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
+        if arg_content is None:
+            matchHighlight = RE_HIGHLIGHT.search(content, cmd_end + 1)
+            continue
+        if answer == 'r':
+            content = (content[:matchHighlight.start(0)]
+                       + arg_content + content[brace_end + 1:])
+            content = trim_space(content, matchHighlight.start(0) + len(arg_content))
+            content = trim_space(content, matchHighlight.start(0))
+            matchHighlight = RE_HIGHLIGHT.search(content, matchHighlight.start(0) + len(arg_content))
+        elif answer == 'k':
+            matchHighlight = RE_HIGHLIGHT.search(content, brace_end + 1)
+        elif answer == 'b':
+            FLAG_FAST_BREAK = True
+            break
 
-            next_pos = 0
-            matchComment = RE_COMMENT.search(lineout, next_pos)  # redo matching for (potentially) updated text
-            while matchComment:
-                if FLAG_FAST_BREAK:
-                    break
-                print('\n** comment commit ** \n' + matchComment.group())
-                answer = ask2()
-                if answer == 'r':
-                    lineout = (lineout[:matchComment.start(0)] + lineout[matchComment.end(0):])
-                    lineout = trim_space(lineout, matchComment.start(0))
-                elif answer == 'k':
-                    lineout = lineout
-                    next_pos = matchComment.end(0)
-                elif answer == 'b':
-                    FLAG_FAST_BREAK = True
-                    break
-                matchComment = RE_COMMENT.search(lineout, next_pos)
+    matchComment = RE_COMMENT.search(content)
+    while matchComment:
+        if FLAG_FAST_BREAK:
+            break
+        print('\n** comment commit ** \n' + matchComment.group())
+        answer = ask2()
+        cmd_end = matchComment.end(0)
+        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
+        if arg_content is None:
+            matchComment = RE_COMMENT.search(content, cmd_end + 1)
+            continue
+        if answer == 'r':
+            content = content[:matchComment.start(0)] + content[brace_end + 1:]
+            content = trim_space(content, matchComment.start(0))
+            matchComment = RE_COMMENT.search(content, matchComment.start(0))
+        elif answer == 'k':
+            matchComment = RE_COMMENT.search(content, brace_end + 1)
+        elif answer == 'b':
+            FLAG_FAST_BREAK = True
+            break
 
-            if lineout.isspace():
-                print('\nResult is empty line and not stored.')
-            else:
-                print('\nResult: \n' + lineout + '\n')
-                fout.write(lineout)
-
-        else:
-            fout.write(linein)
-#
-# END OF SCRIPT
+    with codecs.open(OUTPUTFILE, mode='w', encoding='utf8') as fout:
+        fout.write(content)

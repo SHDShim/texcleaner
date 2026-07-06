@@ -1,0 +1,909 @@
+\documentclass[draft,jgrga,12pt]{agujournal2019}
+\usepackage{url} %
+\usepackage{lineno}
+\usepackage{multirow}
+\usepackage{booktabs} 
+\usepackage{xr}
+\usepackage{amssymb}
+\usepackage{siunitx}
+% \usepackage{hyperref}
+% \usepackage{xr-hyper} 
+%\usepackage{hyperref}      % first
+%\usepackage{xr-hyper}
+\def\url#1{\expandafter\string\csname #1\endcsname}
+
+
+\makeatletter
+\newcommand*{\addFileDependency}[1]{%
+\typeout{(#1)}%
+\@addtofilelist{#1}
+\IfFileExists{#1}{}{\typeout{No file #1.}}
+}\makeatother
+
+\newcommand*{\myexternaldocument}[1]{%
+\externaldocument{#1}%
+\addFileDependency{#1.tex}%
+\addFileDependency{#1.aux}%
+}
+
+\linenumbers
+
+\draftfalse
+%\usepackage[finalnew]{trackchanges} %
+
+\input{ds-revision-tools-202604}
+\input{xh-revision-tools}
+%\usepackage[inline]{trackchanges} %
+\journalname{JGR: Planets}
+
+\myexternaldocument{1-supp_info_1}
+
+
+\begin{document}
+
+\title{Equation of State of Mg$_2$FeH$_6$ Perovskite: Implications for Hydrogen Ingassing in Sub-Neptunes}
+
+\authors{Xuehui Wei\affil{1},
+Taehyun Kim\affil{1}, 
+Sibo Chen\affil{1},
+Stella Chariton\affil{2},
+Vitali B. Prakapenka\affil{2},
+Sang-Heon Shim\affil{1}}
+
+
+\affiliation{1}{School of Earth and Space Exploration, Arizona State University, Tempe, Arizona 85287, U.S.A.}
+\affiliation{2}{Center for Advanced Radiation Sources, The University of Chicago, Chicago, Illinois 60637, U.S.A.}
+\affiliation{3}{Earth and Planets Laboratory of Carnegie Institution for Science, Washington, DC 20015, U.S.A.}
+
+\correspondingauthor{Sang-Heon Shim, Xuehui Wei}{sshim5@asu.edu, xwei47@asu.edu}
+
+\begin{keypoints}
+\item enter point 1 here
+\item enter point 2 here
+\item enter point 3 here
+\end{keypoints}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Abstract}
+
+Hydrogen-rich sub-Neptune exoplanets are thought to host thick atmospheres that interact dynamically and chemically with their rocky interiors. 
+At the boundary between \replaced{hydrogen-rich}{H$_2$} envelopes and silicate-metal cores, pressures of tens of gigapascals and temperatures of several thousand kelvin enable hydrogen to react with rock-forming elements, potentially altering interior composition and density. 
+Here we investigate these processes through laser-heated diamond-anvil cell experiments on Mg-Fe mixtures in H$_2$-rich media at 19-45~{GPa} and up to 3311~K\@. \sidecomment{I don't think you studied the processes, you studied consequence of the process by measuring EOS. Rewrite.} 
+In situ synchrotron X-ray diffraction reveals the formation of Mg$_2$FeH$_6$ with a cubic perovskite-type structure, which remains stable upon quenching. \sidecomment{This is not the most important observation because no one would be convinced that Mg exists as a metal in planetary setting.  Again the most important aspect of your study is EOS not synthesis.  Rewrite.}
+Fitting the pressure-volume data yields a bulk modulus of 62(2)~{GPa} with a pressure derivative of 5.1(2). 
+Using these parameters, mass-radius calculations show that a planet composed of Mg$_2$FeH$_6$ + 25\% H$_2$O produces radii 2--5 times smaller than of those of a rocky (2MgO + Fe) planet surrounded by a 5\% H$_2$ envelope. \sidecomment{Again Mg2FeH6 + H2O is the least realistic setup for planets and therefore putting that in the abstract as the most important finding is incorrect.  Change.}
+This correspondence demonstrates that hydrogen chemically incorporated into hydrides can replicate the bulk densities of volatile-rich sub-Neptunes without requiring thick gaseous envelopes. \sidecomment{This is incorrect for the example you showed in the sentence above.  The Mg2FeH6 + H2O model contains a lot of envelope material.}
+Such ingassing of hydrogen at the envelope-core boundary may therefore reconcile the wide range of observed sub-Neptune densities, implying that part of the hydrogen inventory can be stored in solid hydrides within the deep interior. \sidecomment{Your study did not show a large amount of H can be stored in the interior.  Your study showed that mass-radius analysis can change a lot by taking into account the ingassing of H through hydride formation.}
+
+\begin{cbox}
+    Also, MgH2 is an important part of your paper but you did not discuss at all in the abstract.
+\end{cbox}
+
+% Hydrogen-rich sub-Neptune exoplanets are thought to host thick atmospheres that interact with underlying molten silicate mantles. At the interface, pressure reaches tens of gigapascals and temperature exceeds several thousand kelvins [1]. Under these conditions, hydrogen can react with molten metals and silicates in the magma ocean, reducing oxides and forming metal hydrides [2]. Such processes can open up a possibility of a large amount of hydrogen ingassing and ultimately form hydride phases when planets cool sufficiently to low temperatures. However, the physical properties of candidate hydrides like Mg2FeH6 remain poorly constrained under relevant conditions.
+ 
+% We have conducted a series of laser-heated diamond anvil cell (LHDAC) experiments on Mg-Fe metal mixtures with varying compositions, compressed in H2-rich media and heated to temperatures exceeding 2000 K at 20-45 GPa. In situ synchrotron X-ray diffraction revealed the formation of Mg2FeH6, a hydride with a cubic perovskite structure [3]. Mg2FeH6 perovskite has a lower density (2.76(1) g/cm3 at 1 bar) compared to MgSiO3 bridgmanite. Equation of state fits show a bulk modulus of 67(4) GPa and a pressure derivative of the bulk modulus of 4.8(3), showing that this hydride is much more compressible than silicates. Based on these measured properties, we calculated mass-radius relations of  Mg2FeH6. Note that Fe in Mg2FeH6 is metallic while Mg is oxidized, Mg2+.  Therefore, if stable in the planetary interior, the single hydride phase does not require segregation of rock and metal and instead may form a single layer, which has never been considered before to our knowledge. For a given mass around 5 Earth mass, the radius of a hydride (Mg2FeH6) planet is 17\% greater than the radius predicted for a rocky planet with 2MgO + Fe metal (therefore differentiated into two layers), but 80\% smaller than the radius predicted from 2MgO + Fe metal + 3H2 (differentiated interior with outgassed H2). A large ingassing of hydrogen is possible through hydride formation, and the solidified interiors of hydrogen-rich planets could result in much higher density than un-ingassed form, suggesting consideration of H ingassing could potentially result in significant changes in the modeled compositions of hydrogen-rich sub-Neptunes. 
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \inlinecomment{
+% In this case, we are not considering converting oxide or silicate planets. We are considering accreting different materials onto the planet or processing silicate and oxide materials during accretion.
+% I do not believe a planet can maintain a Mg2FeH6 interior with a H2O atmosphere. The interior would react with the H2O, reverting to silicate and oxide mineralogy.
+% This discussion is very useful, as these are the types of questions likely to be raised by reviewers. Xuehui, please keep this discussion copied into your notes so that you can use it when writing your paper. 
+% Best,
+% Dan
+% Hi Xuehui,
+% Thanks for sharing the abstract.  I left some comments in the attached file.  Your abstract looks great.  I would like to share two more comments that do not need to be considered for the current abstract, but may be useful for a future paper in a peer-reviewed journal.
+% Aligning the experimental design with the target planets or conditions is often important. You may have your own perspective on this.
+% You compared the expected planetary radius using three material combinations: Mg2FeH6, 2MgO + Fe, and 2MgO + Fe + 6H2. If oxygen is released from the chemical reactions, its effect may need to be considered. Even if H2O could be dissolved into a magma ocean (in which case the effect of oxygen might be minimal?), the partial volume of H2O (or the expected chemical species) in the magma ocean may still need to be taken into account (I can share a few papers on this topic).
+% Thanks,
+% Taehyun
+% }
+
+\section{Introduction}
+
+Hydrogen is the most abundant element in the Universe and a major component of exoplanets \cite{wolfgang_how_2015, jontof-hutter_secure_2016, young_earth_2023}. 
+Sub-Neptune-sized planets (2--3~$R_E$) are commonly modeled with H$_2$-He atmospheres or water-rich layers overlying silicate-iron interiors, where pressures of several to tens of gigapascals and temperatures of thousands of kelvin may occur at the interface \cite{kite_atmosphere_2020, schlichting_chemical_2022}. 
+Traditional mass-radius models often treat hydrogen as a gaseous or fluid envelope component, with limited chemical exchange with the solid interior \cite{leger_new_2004, rogers_formation_2011, howe_massradius_2014}. 
+However, hydrogen can react with underlying rocks under multi-GPa conditions, reducing oxides, forming metal hydrides, and redistributing hydrogen between the atmosphere and the interior \cite{olson_nebular_2019, kite_atmosphere_2020, young_earth_2023, kim_stability_2023, horn_reaction_2023}. 
+Such hydrogen ingassing may influence a planet's density, thermal evolution, and volatile inventory, and has been proposed as an important process controlling sub-Neptune densities and atmospheric evolution \cite{olson_nebular_2019, kite_atmosphere_2020, schlichting_chemical_2022, young_phase_2024}. 
+
+\begin{cbox}
+Most of your exoplanet citations in this paper focuses on Kite.  This shows you are narrowly searching.  Please find other peoples work.  There are many important works missing.\XWrevised    
+\end{cbox}
+
+Mg$_2$FeH$_6$ is a candidate hydride for storing hydrogen in solid planetary interiors. 
+Experimental observations suggest that Mg$_2$FeH$_6$ can form at 8--13~{GPa} through reactions among MgO, Fe, and H$_2$, potentially explaining the diversity of sub-Neptune densities and the observed ``radius cliff'' near 3~$R_E$ \cite{kim_stability_2023}. 
+In materials science, Mg$_2$FeH$_6$ was first synthesized under low-pressure, hydrogen-rich conditions via solid-state reactions and ball milling \cite{wang_preparation_2010, retuerto_highpressure_2010}. 
+It crystallizes in a cubic, vacancy-ordered double-perovskite structure (space group $Fm\overline{3}m$), in which isolated FeH$_6$ octahedra are separated by ordered vacancies. 
+Determining its stability and compressibility at tens of gigapascals is therefore important for evaluating whether such hydrides could store hydrogen in the deep interiors of sub-Neptunes and super-Earths.
+
+%It crystallizes in a cubic, vacancy-ordered double-perovskite structure (space group $Fm\overline{3}m$), in which isolated FeH$_6$ octahedra are separated by ordered vacancies. 
+%This framework allows substantial hydrogen incorporation while maintaining mechanical rigidity comparable to that of MgSiO$_3$ perovskite. 
+
+Despite extensive interest in Mg--Fe--H systems, experimental constraints on their compressional behavior remain limited. 
+For Mg$_2$FeH$_6$, previous EoS determinations were primarily based on ex situ synthesized samples, often produced by ball milling, followed by compression without a pressure medium or in silicone oil \cite{george_bulk_2009}. 
+Such approaches may introduce uncertainties related to metastability, residual strain, incomplete equilibration, and non-hydrostatic stress.
+MgH$_2$ provides an important binary endmember for understanding hydride formation and compression in Mg-bearing, hydrogen-rich systems. 
+MgH$_2$ undergoes a series of pressure-induced phase transitions from the rutile-type $\alpha$ structure (commonly referred to as $\gamma$-MgH$_2$ in high-pressure studies) to several higher-density polymorphs, including $\beta$, $\delta$, and $\varepsilon$ \cite{moriwaki_structural_2006, vajeeston_structural_2006, cui_structural_2008}. 
+Experiments have established the sequence of these transitions and the stability of the $\varepsilon$ phase at high pressure \cite{moriwaki_structural_2006}, while first-principles calculations reproduce the phase relations and predict their compressional behavior \cite{cui_structural_2008}. 
+However, experimental $P$--$V$ data remain limited in both quality and pressure range, and no equation of state has been reported for the high-pressure polymorphs. 
+As a result, the compressibility of MgH$_2$, particularly for the $\varepsilon$ phase, is still based largely on theoretical estimates, leaving its density at high pressure poorly constrained.
+
+
+%Here we report laser-heated diamond-anvil cell experiments on Mg--Fe mixtures and Mg metal in H$_2$-rich media at 6--51~{GPa} and up to 3531~K, combined with in situ synchrotron X-ray diffraction. 
+%We demonstrate that Mg$_2$FeH$_6$ with a cubic perovskite structure forms robustly at 19--45~{GPa} and remains stable at temperatures relevant for solidified sub-Neptunes. 
+%We also synthesize MgH$_2$ polymorphs across a broad pressure range, allowing us to constrain their phase relations and compressional behavior. 
+%Using the measured equations of state, we calculate mass-radius relations to evaluate the potential influence of hydride formation on planetary densities. 
+
+Here we combine laser-heated diamond-anvil cell experiments and \textit{in situ} synchrotron X-ray diffraction in H$_2$-rich environments to directly probe hydride formation under the extreme conditions expected at the envelope-interior boundary of sub-Neptunes. We constrain the stability and equations of state of Mg$_2$FeH$_6$ and MgH$_2$, two key hydrogen-bearing phases that may act as deep reservoirs for planetary hydrogen. Incorporating these experimentally determined properties into mass-radius calculations reveals that hydride-rich rocky interiors can mimic the densities of water-rich planets and that redistribution of hydrogen between condensed hydrides and atmospheric reservoirs can strongly modify planetary radii without changing the total hydrogen inventory. These results introduce a new compositional degeneracy for sub-Neptunes and suggest that part of the diversity of observed planetary densities may arise from hydrogen ingassing into rocky interiors rather than differences in volatile abundance alone.
+
+%Our results show that hydrogen incorporation into Mg-Fe hydrides can reproduce the mass-radius characteristics of volatile-rich sub-Neptunes without requiring thick H$_2$ or H$_2$O envelopes, identifying Mg$_2$FeH$_6$ formation as a plausible mechanism for hydrogen sequestration within planetary interiors.
+
+% \urgentcomment{We will write abstract and introduction section after completing the rest of the manuscript.}
+
+
+% This is the introduction section of the document.
+
+% Mg as a abundant element (15.4 wt\% of bulk earth composition [cite McDonough, 2003]) , receiving much limited research on the Fe alloys due to its immiscibility in the iron metals (cite?), compared with other light elements like, S, Si, H, O. Recent researches on the early dynamo formation mechanism argued that MgO exsolution can be an energy source driving the commence early earth magnetic filed. But there is no enough experimental analysis support that the movement of Mg from core to the core mantle boundary domained the early earth dynamo. 
+
+% Although the solubility of Mg in pure Fe alloys are negligible, its participation in the complex hydrides is considerable. 
+% Mg2FeH6 was initially synthesized in 1984 using a sintering technique at high pressure of hydrogen \cite{didisheim_dimagnesium_1984}. Recent studies have reported that the synthesis can also be achieved using simple hydride MgH2 and metal Fe at moderate temperatures and pressure.
+% Mg$_2$FeH$_6$ has the highest hydrogen volumetric density among complex hydrides, with a hydrogen capacity varying from 5.0 to 5.23~{wt\%} 
+% \cite{reiser_application_2000,wang_preparation_2010, lima_hydrogen_2014}. 
+% %for full capacity, H accounts for 5.73 wt%
+% Thus, it appears a lot of attention of investigation because its application on hydrogen storage materials. 
+
+%Mg$_2$FeH$_6$ are commonly synthesized by ball milling of Mg + Fe mixture or by MgH$_2$ + Fe mixture. Milling time and temperature affects the H absorption. A long milling time increase hydrogen absorption and \SI{200}{\degreeCelsius} -\SI{300}{\degreeCelsius} is the favorable temperature range.
+% cite {lima_hydrogen}
+
+%\cite{retuerto_high-pressure_2010}
+
+\begin{cbox}
+    This note is before DS reads the introduction section and the purpose is to make sure this component exists in the introduction.
+
+    What is the important improvement we are making for MgH2 and Mg2FeH6 for EOS measurements over the previous study?\\
+    \XWrevised[I rewrite this paragraph]
+\end{cbox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methods}
+
+\subsection{High-Pressure Experiments}
+
+Mg metal and Mg–Fe mixtures were used as starting materials \added{for high-pressure synthesis}.
+99.99\%-pure Mg and Fe metal powders were obtained from Alfa Aesar chemicals. 
+For the Mg$_2$FeH$_6$ experiments, Mg and Fe powders were mixed in different proportions, including 15, 30, 50, and 67~{at.\%} of Mg. 
+For the MgH$_2$ experiments, we used pure Mg metal.
+
+Diamond-anvil cells with culet sizes of 200 and 300~{$\mu\mathrm{m}$} were used to generate desired pressures. 
+The sample powders were compressed into approximately 5\,{$\mu\mathrm{m}$}-thick foils using a separate DAC\@. 
+%\inlinecomment{``foil maker'' is not a general term.  Explain that you compressed the powder with a separate DAC.}
+These compressed foils, then, were loaded into rhenium gaskets. 
+The rhenium gaskets were indented to about 20~{$\mu\mathrm{m}$} in thickness and drilled with a hole approximately 2/3 the culet size using a laser drilling system at Arizona State University (ASU). 
+Once drilled a hole, for the experiments with high concentration of H$_2$ in the medium,  gaskets  were coated with an 800-nm thick layer of gold to prevent hydrogen from diffusing into the gasket. 
+Several tiny pieces of starting material (less than 5~$\mu$m in diameter) were placed on both cullets to separate the sample foil from the  diamond anvils. 
+A gold grain and a ruby chip was placed adjacent to the sample foil as pressure scales \cite{fei_internally_2007, mao_calibration_1986}. %\sidecomment{Cite papers for the ruby pressure scale.}
+We loaded pure H$_2$ gas or a H$_2$ + Ar gas mixture (H$_2$:Ar = 2:1 in mole fraction)  in the sample chamber. 
+%For the gas mixtures,  mole fractions of 67:33 (H$_2$:Ar) and 3:97 were used. 
+The gas was compressed to 1400~bar and then injected into the sample chamber in a gas loading system at ASU\@. 
+We then compressed the diamond-anvil cell to 5--15~GPa while monitoring pressure using ruby scale \cite{mao_calibration_1986}. 
+
+Synchrotron X-ray diffraction (XRD) experiments were conducted \textit{in situ} at high pressure and high temperature using laser-heated diamond anvil cells at the 13ID-D beamline of the GSECARS sector of the Advanced Photon Source (APS). 
+The monochromatic X-ray beam  had a wavelength of 0.3344~{\AA} and a spot size of $1.5{\times} 2~\mu\mathrm{m}^2$. 
+X-ray beam was focused on the sample and co-axially aligned with two laser  beams with a focal spot size of 25~$\mu$m in diameter.  
+Pulsed heating was conducted on the sample in a pure hydrogen medium to prevent significant anvil embrittlement enhanced by hydrogen during laser heating \cite{prakapenka_advanced_2008,silvera_metallic_2018}. %\sidecomment{cite papers about diamond embrittlement and pulsed laser heating.}
+The $10^5$ accumulations of each pulsed heating were collected in 1 second. 
+We found that the reaction with H$_2$ at temperatures greater than 2000 {K} is fast. 
+For the samples in a H$_2$ + Ar mixture medium, we conducted continuous laser heating for 5~minutes. 
+
+The temperature was calculated by fitting the measured thermal radiation spectra from both sides of the sample to a Planck function based on a gray body approximation \cite{prakapenka_advanced_2008}. 
+Before the fitting, the measured spectra were corrected for the system response.
+We calculate temperature uncertainty from the difference between the two sides of the sample. 
+We found that Mg metal is highly reflective at high pressure, resulting in highly variable laser coupling and therefore larger differences than other metal experiments in LHDAC\@.
+
+XRD images were measured before, during, and after laser heating. 
+We also conducted XRD mapping after quenching to 300\,K at high pressures. %\sidecomment{quenching to 300 K at high P, or recovering the sample to 1 bar and 300 K?  Revise.} 
+The step size for the map was $2~\mu\mathrm{m}$.
+X-ray diffraction images were measured using a Pilatus 1M~CdTe detector. 
+A LaB$_6$ standard material was used to calibrate and correct distortions and tilt of the detector together with the detector-to-sample distance for the integration of diffraction images to 1D patterns in the Dioptas software \cite{prescher_dioptas_2015}. 
+The PeakPo software package was used for peak identification and unit-cell fitting \cite{shim_shdshim_2018}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Mass-Radius Relations Calculation}
+
+We calculated the mass-radius relations of hypothetical single-material planet with Mg$_2$FeH$_6$, MgH$_2$, H$_2$O, \added{and} \replaced{b}{B}ridgmanite, \replaced{as well as}{and} \replaced{multi-layered planets}{the multiple-material planets} composed of \replaced{b}{B}ridgmanite + H$_2$O, \replaced{b}{B}ridgmanite + Fe, MgO + Fe and Mg$_2$FeH$_6$ + H$_2$O. 
+\replaced{Profiles}{The distribution} of mass ($m$), density ($\rho$), pressure ($P$), and gravity ($g$) as functions of radius \replaced{are}{is} calculated following \added{the} approaches established in previous studies (e.g., \citeA{unterborn_pressure_2019, boujibar_superearth_2020}).
+The thermal structure is simplified by assuming a constant temperature of 300~K throughout the planetary interior. 
+This isothermal approach neglects thermal pressure contributions and temperature-dependent material properties, focusing exclusively on the compressional effects.
+Previous studies \cite{zeng_new_2021, zeng_detailed_2013} have shown that the thermal effects are much smaller for the mass-radius relations than compression effects.
+
+The following equations are solved in spherical shells of thickness $dr = 1~\mathrm{km}$ and integrated over the total planetary radius $R$:
+\begin{equation}
+    \frac{dm(r)}{dr} = 4\pi r^2\rho (r),
+\end{equation}
+\begin{equation}
+    \frac{dg(r)}{dr} = 4 \pi G\rho (r) -\frac{2Gm(r)}{r^3},
+\end{equation}
+and
+\begin{equation}
+    \frac{dP(r)}{dr} = -\rho (r) g (r).
+\end{equation}
+    
+The density-pressure relationship is described by the \added{third-order} Birch-Murnaghan equation of state:
+
+\begin{equation}
+P = \frac{3}{2}K_0\left[\left(\frac{\rho}{\rho_0}\right)^{7/3} - \left(\frac{\rho}{\rho_0}\right)^{5/3}\right]\left\{1 + \frac{3}{4}(K_0' - 4)\left[\left(\frac{\rho}{\rho_0}\right)^{2/3} - 1\right]\right\}
+\end{equation}
+
+The equations are integrated numerically from the planetary center outward using the Radau method \cite{butcher_coefficients_1963} to handle stiffness in the differential equations. 
+The system requires an initial guess for central pressure, which is iteratively adjusted until the solution converges to match the known planetary radius and mass boundary conditions. 
+Material properties of Mg$_2$FeH$_6$ and MgH$_2$, such as density, bulk modulus, and its pressure derivative, are from our experimental measurements.
+We used EoS parameters from \citeA{tange_pvt_2012} for MgSiO$_3$ \added{bridgmanite}, \citeA{saxena_thermodynamics_2015} for Fe \added{metal}, \citeA{lai_thermal_2023} for H$_2$O (ice VII), and \citeA{dorogokupets_equations_2007} for MgO\@. 
+Two-layer planetary models (MgO/bridgmanite mantle over an iron core) were constructed using the Burnman code \cite{myhill_burnman_2023}.
+\begin{cbox}
+What types of approaches did you use for other multi-layer planet cases in your study?
+\end{cbox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\replaced{Synthesis of the samples (move later to SI)}{Results}}
+%Diffraction lines of Mg$_2$FeH$_6$ was observed in the products generated by starting material with various Mg and Fe ratios, although the peak intensity of Mg$_2$FeH$_6$ in the products varies in different runs.
+%In the run 223--A, the Mg:Fe is 2:1 in the starting material, peaks of Mg$_2$FeH$_6$ is fairly intense. 
+%While with the the ratio of Mg with Fe decreases, the peak intensity of Mg$_2$FeH$_6$ drops. 
+\subsection{Mg$_2$FeH$_6$}
+
+
+%%%%%%%%%%%%%%%%
+\begin{table}[!h]
+    \centering
+    \caption{Run table of the LHDAC experiments. 
+    $P$: pressure; $T$: temperature; H$_2$+Ar: a 67\% H$_2$ + 33\% Ar medium;
+    CH: continuous heating; PH: pulsed heating; 
+    dhcp: double hexagonal close-packed; fcc: face-centered cubic. 
+    For FeH$_x$, if $x$ is not given, Fe/H = 1.
+    \cboxinline{Are the P-T conditions for synthesis?  Then you should clearly say synthesis conditions in the table caption.}
+    }
+    {\scriptsize
+    \begin{tabular}{lcccccl}
+    \hline
+     Run   & Mg:Fe & Medium & Heating &$P$ (GPa) & $T$ (K) & Products \\
+     \hline
+     F\_A1    & 1:1  & H$_2$+Ar & CH & 28(4) & 1879(211) &  Mg$_2$FeH$_6$, dhcp FeH$_{1.2}$, hcp FeH$_{0.09}$, MgO\\
+     F\_A2    & 1:1  & H$_2$+Ar  & CH & 40(5) & 1622(270) &  Mg$_2$FeH$_6$, dhcp FeH$_{1.1}$ \\
+     F\_B1    & 2:1  & H$_2$  & PH   & 22(2) & 3311(636)&  Mg$_2$FeH$_6$, MgO \\
+     F\_B2    & 2:1  & H$_2$ &PH  & 34(3) & 3206(769)&  Mg$_2$FeH$_6$, dhcp FeH$_{0.9}$, $\varepsilon$-MgH$_2$, MgO \\
+     F\_C1    & 3:7  & H$_2$ &PH & 19(3) & 2567(492) &  Mg$_2$FeH$_6$, dhcp FeH, fcc FeH$_{0.9}$ \\
+     F\_C2    & 3:7  & H$_2$ &PH  & 39(4) & 3162(545) &  Mg$_2$FeH$_6$, dhcp FeH \\
+     F\_D1    & 3:17 & H$_2$ &PH & 45(3)& 2475(202) &  Mg$_2$FeH$_6$, dhcp FeH, MgO \\
+
+       M\_A1   & 1:0 & H$_2$ &PH & 6      & 3531(809)  & $\beta$-MgH$_2$ \\
+      M\_A2   & 1:0 & H$_2$ &PH & 9(1)   & 3147(228)  & $\beta$-MgH$_2$  \\
+      M\_B1  & 1:0 & H$_2$ &PH & 16(1.5) & 3277(989) & $\varepsilon$-MgH$_2$ \\
+      M\_B2  & 1:0 & H$_2$ &PH & 30(2)   & 2626(600) & $\varepsilon$-MgH$_2$ \\
+      M\_B3  & 1:0 & H$_2$ &PH & 40(3)   & 2652(165) & $\varepsilon$-MgH$_2$ \\
+      M\_B4 & 1:0 & H$_2$ &PH  & 51(4)   & 2435(300) & $\varepsilon$-MgH$_2$ \\
+      M\_C1  & 1:0 & H$_2$ &PH & 11      & 2301(690) & $\delta$-MgH$_2$ \\
+      M\_C2  & 1:0 & H$_2$ &PH & 18(2)   & 3455(880) & $\varepsilon$-MgH$_2$\\
+      M\_D1  & 1:0 & H$_2$+Ar &CH & 25(2)   & 2460(207) & $\varepsilon$-MgH$_2$\\
+      
+     \hline
+    \end{tabular}}
+    \label{tab:runtable}
+\end{table}
+
+%%%%%%%%%%%%
+%\subsection{summary}%Formation of Hydride Phases During Laser Heating
+We conducted a series of laser-heated diamond anvil cell (LHDAC) experiments on mixtures of Mg and Fe metal with varying molar ratios, at pressures ranging from 20 to 45~{GPa} and temperatures between 1394~K and 3311~K, combined with synchrotron X-ray diffraction (Fig.~\ref{fig:P-T}). 
+The samples were compressed in either a 67\% H$_2$ + Ar mixture or a pure H$_2$ medium. 
+The synchrotron XRD data were collected before heating, in situ at high temperatures, and after quenching to 300\,K at high pressures, as well as ambient conditions after decompression. 
+%\subsection{pre-heating phase}
+Before laser heating,  XRD patterns  revealed only the presence of hcp Mg and hcp Fe (Figs\,\ref{fig:mgfeh-ar-h-40gpa}a and \ref{fig:mgfeh-ar-h-28gpa}a), consistent with the unreacted starting materials. 
+No FeH$_x$ or MgH$_2$ phases were detected before heating, indicating that reaction with hydrogen does not occur at 300~K in this case.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width = 0.8\textwidth]{figs/P-T-MgFeH-MgH2-s_update.pdf}
+\caption{\replaced{Synthesis p}{P}ressure and temperature conditions of the \replaced{samples}{experimental runs} (Table\,\ref{tab:runtable}). 
+%\begin{cbox}
+%Do not use ``redish'', ``bluish'' etc. 
+%Use formal English proper for scientific papers. \XWrevised
+%\end{cbox}
+Colors from light to dark red represent increasing  Mg content in the starting mixtures. 
+The solid circles represent runs with pulsed heating, while the solid diamonds show runs with the continuous heating mode.
+Colors in hexagonal from light to dark blue represent stable phase of MgH$_2$ with increasing pressures.
+The solid lines illustrate the melting curves of Fe \cite{anzellini_melting_2013},  Mg \cite{stinton_equation_2014} and FeH \cite{tagawa_highpressure_2022}. 
+}\label{fig:P-T}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{in situ observations of CW heating}
+In runs F-A1 and F-A2 at 28 and 40~{GPa}, respectively, continuous laser heating was applied to Mg-Fe mixtures in a 67\% H$_2$ + Ar mixture medium, and in-situ high-temperature XRD patterns were collected. 
+Upon heating, diffraction peaks corresponding to Mg$_2$FeH$_6$ and dhcp FeH$_x$ ($x =1.1{-}1.2$) appeared within 1~minute (Figs~\ref{fig:mgfeh-ar-h-40gpa}b and ~\ref{fig:mgfeh-ar-h-28gpa}b). 
+These phases remained stable throughout ten minutes of heating. 
+\linelabel{line:begin:Mg2FeH6-index}
+For the phase assignment, for example, at 1~bar after decompression, twelve Bragg reflections are resolved between 4 and 20 \added{$2\theta$} degrees (Fig.~\ref{fig:gsas-V}). 
+All reflections are indexed well to cubic Mg$_2$FeH$_6$ with the double-perovskite structure (space group $Fm\overline{3}m$) \deleted{known at the conditions} \cite{didisheim_dimagnesium_1984, retuerto_highpressure_2010}. \linelabel{line:end:Mg2FeH6-index}
+
+In run F-A1, we also observed an hcp phase persisted after heating and subsequent temperature quenching (Fig.~\ref{fig:mgfeh-ar-h-28gpa}b,c).
+The hcp phase has a unit-cell volume slightly larger than hcp Fe metal at the same pressure \cite{dewaele_quasihydrostatic_2006}.
+If a partial molar volume of hydrogen of $\sim$2.48~{\AA}$^3$ per H atom published for hcp Fe is used \citeA{machida_hexagonal_2019}, we obtain FeH$_{0.09}$. \sidecomment{use Piet 2021 instead}
+As discussed by \citeA{machida_hexagonal_2019}, hcp FeH$_x$ commonly emerges via an fcc-to-hcp transformation and can persist metastably when the hydrogen content is limited, over a broad range of $P$-$T$.
+This interpretation is consistent with our observations.
+In our experiments, H$_2$ amount is limited in the mixture medium and it can be further limited by the formation of Mg$_2$FeH$_6$ perovskite. 
+
+%The dhcp hydrides was favored at higher pressures, consistent with previous reports on Fe-H systems \cite{sakamaki_melting_2009}. 
+%Notably, $\epsilon$-MgH$_2$ was observed only in the quenched pattern of run 222-A1 (Fig.\,\ref{fig:mgfeh-ar-h-40gpa}a), but not during heating, suggesting that it crystallized from the melt during the cooling stage.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Pure H2 products}
+Experiments conducted in a pure H$_2$ medium utilized pulsed laser heating to minimize diamond failure during high temperature heating.  %which limits in situ diagnostics due to the brief duration of heating. 
+Each \replaced{heated area}{hot spot} was subjected to five heating events with each event with 4 heating-cooling cycle. \sidecomment{This sounds wrong to me.  During pulse heating there are over 10,000 heating-cooling cycles within 0.1-1 second.}
+Each heating event lasted 1~second, for a cumulative on-sample heating time of 5~seconds. 
+
+Due to the microsecond heating timescales, \textit{in situ} high-$T$ XRD was not feasible during pulsed heating. 
+All these experiments resulted in formation of Mg$_2$FeH$_6$ regardless of Mg:Fe ratio of the starting materials and medium (Fig.~\ref{fig:mgfeh-mgh2-xrd}). 
+These phase assemblages resembled those produced in the continuous-heating experiments with a H$_2$ + Ar mixture medium, although minor run-to-run differences were observed, such as occasional observation of FeH$_x$, MgO, or $\varepsilon$-MgH$_2$, as summarized in Table~\ref{tab:runtable}.
+Synthesis of Mg$_2$FeH$_6$ at low pressure is challenging \sidecomment{Are you talking about your low pressure experiments or low pressure experiments previously reported.  Change wording to avoid this confusion.} because Mg and Fe do not form a stable alloy precursor, requiring the hydride to form through solid-state reactions between Mg/MgH$_2$ and Fe \cite{puszkiel_new_2018}. 
+Previous low-pressure syntheses commonly required prolonged ball milling, elevated H$_2$ pressure, and/or long annealing, and often produced residual Fe, MgH$_2$, or MgO \cite{wang_preparation_2010}. 
+In LHDAC experiments, these difficulties are compounded by possible Mg oxidation, and the challenge of maintaining a homogeneous Mg:Fe ratio in a small sample volume. \sidecomment{It sounds like Mg2FeH6 is also very difficult at high pressure in your experiment.  This sentence sounds like that.  Is that what you intended?}
+%Nevertheless, quenched samples consistently contained Mg$_2$FeH$_6$, regardless of the initial Mg:Fe ratio (Fig.~\ref{fig:mgfeh-pureH}). 
+%The relative peak intensity depends on both the initial Mg:Fe ratio and the hydrogen content of the pressure medium. 
+%Among these, Mg$_2$FeH$_6$ was the dominant product in all hydrogen-rich environments and formed regardless of the initial Mg:Fe ratio. 
+%In addition to Mg$_2$FeH$_6$, FeH$_x$ (dhcp or fcc) always appeared except for run 223-A1, with $\varepsilon$-MgH$_2$ \cite{moriwaki_structural_2006} formation in run 223-A2.
+%\urgentcomment{The sentence above is not well written, you are talking about run 223-A1 and then why you later say 223-A2? Breakdown the sentence into two for clarity. \XWrevised[you are right, such description may misleading. I revised the last sentence.]}
+
+
+%The dhcp structure of FeH was more frequently observed at higher pressures, consistent with previous studies \cite{sakamaki_melting_2009}.
+
+
+%\XWReminder[I have plotted the best quality of Mg2feH6 and MgH2 for Figure 2. Other XRD patterns have been removed to SI.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%
+%\subsection{Pulse heating vs continuous heating}
+In our experiments, continuous laser heating provides the advantage of allowing a more reliable assessment of the stability of Mg$_2$FeH$_6$ under high $P$-$T$ conditions. 
+By sustaining heating for several minutes, we can directly monitor in-situ XRD patterns and confirm that the observed phase is indeed stable rather than a kinetic artifact.
+In contrast, pulsed laser heating, operating on the micro-second timescale, is particularly advantageous in hydrogen-rich environments because it reduces hydrogen diffusion and significantly reduces the risk of diamond failure \cite{goncharov_xray_2010,horn_building_2025}. 
+Moreover, because  we often find large coupling differences between two different sides by reflectivity of metal mixture foils during continuous heating, pulsed heating offers a practical alternative, delivering intense short-duration heating sufficient to trigger reactions \cite{ning_mechanism_2019}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Melting or not}
+
+Evidence for melting was found in all the runs using pulsed heating, as revealed by post-quench optical images showing a hole at the heated spot through all pulsed heating runs. 
+This interpretation is further supported by the fact that the heating temperatures reached (2475--3311~K) were several hundred kelvin higher than the melting points of Mg and Fe at the corresponding pressures in these heating runs (Fig.~\ref{fig:P-T}). 
+%In contrast, for run 222-A1 under continuous heating to 1622~K in an Ar-H$_2$ mixture medium, no melting was detected throughout the experiment. 
+
+A different behavior was observed in run F-A1, which also employed continuous heating with the same starting material and pressure medium but under different $P$-$T$ conditions. 
+In this case, weak diffuse scattering appeared in the XRD patterns, which we attribute to partial melting of FeH$_x$. 
+As shown in Fig.~\ref{fig:P-T}, the heating temperature in run 221-A1 exceeded the melting point of FeH$_x$ but remained below that of Mg and Fe, suggesting that with time elapsed and further temperature increase, FeH$_x$ could melt partially while Fe stayed solid.
+
+%\xuehuisidecomment{May need diffuse scattering XRD patterns here.}
+%In terms of the heating mode, the pulse-heating mode can generally generate higher temperatures but larger temperature errors than that generated by the continuous heating mode \cite{deemyad_pulsed_2005}. %\sidecomment{The tone of the sentence requires citation for a work which found this.}
+%For the runs which used continuous heating mode, run 221--A1/A2 and run 222--A1/A2, the heating temperature is much lower than the liqudus of Mg and Fe metal. 
+%However, for the runs that can observed Mg$_2$FeH$_6$, melting can be identified from the integrated XRD patterns. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{FeH$_x$}
+
+In our LHDAC experiments, FeH$_x$ was found often in the XRD patterns quenched from high temperatures.
+Most FeH$_x$ phases adopt a double hexagonal close-packed (dhcp) structure, with the fcc FeH$_x$ observed only once in run 223-B1 (Table~\ref{tab:runtable}, Fig\,\ref{fig:mgfeh-pureH}b), existing with dhcp FeH$_x$ together. 
+
+%Notably, Mg$_2$FeH$_6$ has not been synthesized at high pressure-temperature conditions in DAC experiments reported in the literature. 
+%\inlinecomment{The sentence above is difficult to understand.  Do you mean, Mg2FeH6 synthesis directly at high P-T has not been conducted to our knowledge?  Or DAC experiments on related composition exists but they never observe Mg2FeH6?  If the latter, when did they observe?}
+%Rather, it has been obtained by alternative methods such as ball milling or piston-cylinder experiments \cite{wang_preparation_2010, retuerto_highpressure_2010}. 
+%In those cases, FeH$_x$ is not detectable from the covered samples \sidecomment{what do you mean by ``covered samples''?} due to it is unstable \sidecomment{you mean ``instability'' instead?} under ambient conditions \cite{badding_highpressure_1991}, underscoring that our observations of FeH$_x$ are specific to the high $P$--$T$ DAC experiments reported here.
+
+
+%Although fcc FeH$_x$ is known to stabilize at high temperature between 5-20~{GPa} \cite{sakamaki_melting_2009, narygina_xray_2011}, our microsecond-pulsed heating experiments yielded quenched dhcp FeH$_x$.
+
+% Published high-pressure studies indicate that, in the $\sim$5-20~{GPa} range, the fcc FeH$_x$ polymorph is stabilized at relative high temperatures ($\geq$700-1000~), whereas the dhcp phase is the stable structure at the lower temperature regime than that of fcc phase \cite{sakamaki_melting_2009,narygina_xray_2011}. 
+%  But, the temperature booundaries at higher pressure range of dhcp FeHx and fcc FeH at higher pressure is still remain unclear. 
+% Although some observed fcc FeHx from 1500-2500~K at 20-70 GPa \cite{piet_effect_2021, thompson_highpressure_2018, narygina_xray_2011}, however, dhcp FeHx phase was also observed in some studies above 2500~K from 28-45 GPa \cite{piet_effects_2021, piet_effect_2021}. 
+
+% In this study, we observed dhcp FeHx mostly from 19-45 GPa with the temperature ranging 1622-3311 K, no matter the heating method. 
+% Our observations do not contrast with the previous studies. And \citeA{piet_effect_2021} explained the persistence of dhcp FeH$_x$ because that dhcp and fcc FeH phases are close enough in thermodynamic stability to coexist, and dhcp persistence can be linked to crystallization from melt. 
+
+
+According to previous works, in the 5--20~GPa range, the fcc FeH$_x$ phase is stabilized at higher temperatures ($>$700--1000~K), whereas the dhcp phase is stable at lower temperatures \cite{sakamaki_melting_2009,narygina_xray_2011}. 
+At higher pressures ($>$25~GPa), however, the dhcp-fcc boundary remains uncertain.
+Most in-situ studies have reported fcc FeH$_x$ at 1500--2500~K and 20--70~{GPa} \cite{piet_effect_2021,thompson_highpressure_2018,narygina_xray_2011}. 
+Nevertheless, a few observations of dhcp FeH$_x$ at high temperatures do occur. 
+One study reported dhcp above $>$2500~K at 28--45~{GPa} \cite{piet_effects_2021}, noting that sulfur may shift the stable field of fcc/dhcp phases. 
+%Another study \cite{piet_effect_2021}, addtionally, observed dhcp present at room temperature and persisting during laser heating at 26~{GPa}, possibly due to thermal gradients. \sidecomment{I think your sentence here is incorrect.  I suggest you read the paper more carefully.  This is not good.  I believe dhcp at such high T in piet2021 is for Ni bearing not pure Fe.  Double check this and rewrite.\XWrevised}
+
+In this study, we predominantly observe dhcp FeH$_x$ over 19--45~{GPa} with heating temperatures of 1622--3311~K, irrespective of heating method. 
+%These observations are not in conflict with prior work. 
+%Although our temperature uncertainties are large (Table\,\ref{tab:runtable}), they likely do not by themselves explain dhcp at the highest temperatures. 
+A plausible factor is trace Mg incorporation from the Mg-Fe mixture could shift relative stability and promote dhcp retention where fcc is often reported. 
+While we lack direct evidence for Mg in FeH$_x$ in these runs and the role of Mg can be different, \citeA{piet_effect_2021} showed that Ni stabilizes dhcp to higher pressures in (Fe,Ni)H$_x$.
+The hydrogen content in dhcp FeH$_x$, $x$, ranges from 0.9 to 1.2 (Fig.~\ref{fig:FeH-x}), determined following the approach of \citeA{piet_superstoichiometric_2023}.
+Of course, if some Mg exist, the estimated value above should be corrected.
+
+
+%In our microsecond-pulsed experiments, peak temperatures likely traversed the high-$T$ field where \textit{fcc} FeH$_x$ is favored; however, upon rapid cooling at pressure the sample relaxes into the room-temperature stability field, yielding quenched \textit{dhcp} FeH$_x$. This behavior—\textit{fcc} at high $T$, \textit{dhcp} at low $T$ within 5-20~GPa—is consistent with the literature and with the short dwell times inherent to pulsed heating.
+
+
+
+%Although fcc FeH$_x$ is stabilized at high temperature in the 5-20~{GPa} range \cite{sakamaki_melting_2009, narygina_xray_2011}, our microsecond-pulsed heating experiments yielded quenched dhcp FeH$_x$. This phase likely reflects the high-temperature dhcp phase that was retained metastably upon quenching.
+%However, the phase boundary at higher pressures, specifically 30-40 GPa in our study, has not yet been established. 
+
+%\urgentcomment{I do not understand the sentence above.  I don't understand what you try to say here. \XWrevised}
+%As pointed in the previous studies \cite{thompson_highpressure_2018,piet_effect_2021}, the observation of dhcp FeH$_x$ likely reflects transient sampling of the high-T field and partial kinetic retention on quench within the known metastability window.
+%Therefore, the observations of dhcp FeH$_x$ quenched from high temperatures at 19-41 GPa make sense. 
+%\urgentcomment{You need to compare with FeH phase diagram published by others and explain whether your observation makes sense or not, the same way you did for the Fe-S-H paper regarding dhcp phase observation. \XWrevised}
+%$x$, representing hydrogen content in FeH$_x$, ranges from 0.9 to 1.2 (Fig.~\ref{fig:FeH-x}). 
+%We obtained $x$ value using the method used in the study of \citeA{piet_superstoichiometric_2023}. 
+%\urgentcomment{English problem in the sentence above Piet developed the method.  You said ``used in the study by...'' which means Piet used somebody else's study, which is wrong. \XWrevised}
+
+%Additionally, FeH$_x$ appeared also in the diffraction patterns after heating. %\sidecomment{During heating or only after heating.  This is important because it could indicate melting during heating or not.} 
+%In these runs of pulsed heating, only double hexagonal-close-packed FeH$_x$ is observed on the quench XRD patterns. %Even though the heating temperatures are much higher than the stable filed of %, which is because the heating temperature is higher than the stable field of fcc FeH$_x$. \sidecomment{This type of sentence requires citations and explain what the expected phase for FeHx.}
+
+%\urgentcomment{Overall, logical flow of this subsection is not great.  I cannot understand well enough.  Revise. \XWrevised}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{MgH$_2$}
+
+In run F\_B2 where pulsed heating was conducted for a starting Mg-Fe with a ratio of 2:1, $\varepsilon$-MgH$_2$ occasionally appeared in diffraction patterns.   
+$\varepsilon$-MgH$_2$ is known to be stable above $\sim$20~GPa at both room and high temperatures \cite{moriwaki_structural_2006}.  
+In contrast, MgH$_2$ did not appear in the other Mg$_2$FeH$_6$ runs. 
+This difference can be explained by excess Mg in the starting material of the run.
+
+%even though its amount is almost negligible in most runs. \sidecomment{Be specific.  Which runs did you see MgH2? We need more clear statement like ``X out of X runs we observed MgH2''.}
+% In the sun 223-A2, where Mg and Fe accounting for half prespectively \sidecomment{typo?  what do you mean by this?} in the starting material, apparent MgH$_2$ was identified. \sidecomment{You need to provide XRD patterns for this.  If not important, at least in SI.}
+% This phase adopts an orthorhombic structure, and was named $\epsilon$ phase of MgH$_2$, which is a high pressure phase above around 20~{GPa}. \sidecomment{You need reference here.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{MgO}
+
+MgO, absent in pre-heating patterns, appeared in many of the post-heating XRD patterns (Fig.~\ref{fig:mgfeh-pureH}). 
+Its origin can be attributed to minor oxidation of Mg powder during sample preparation. 
+Amorphous coating or {nanocrystalline} thin film {may form} at ambient conditions as exposed to atmosphere  \cite{mahadeva_magnetism_2013, wang_turning_2018}. 
+{They can be} recrystallized upon heating and appear in the diffraction patterns. 
+We did not observe {any significant} volume expansion of MgO phase in our experiments compared with previous reports \cite{ye_intercomparison_2017} at both high pressures and {1~bar}, suggesting that there is not significant amount of Fe being included in the MgO structure. 
+While unintentional, the presence of MgO was useful for pressure estimation in some runs, providing a secondary internal pressure scale \cite{dorogokupets_equations_2007} in addition to Au \cite{fei_internally_2007}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\linewidth]{figs/mgfeh_mgh2_good_highP.png}
+\caption{The XRD patterns of Mg$_2$FeH$_6$ and MgH$_2$ collected at 300~K \added{after synthesis at higher temperatures}. (a) \replaced{This sample is synthesized at}{Pattern obtained at 300~K, which was previously heated to} 3206~K \replaced{and}{at} 34~{GPa}.\deleted{, then quenched to 300~K.} (b) \replaced{This sample was synthesized at}{Quenched pattern of run M\_D1, heated to} 2460~K \replaced{and}{at} 25~{GPa} in an Ar + H$_2$ medium \added{(run M\_D1)}. 
+Vertical ticks indicate the expected peak positions of the identified phases, with thick ticks highlighting Mg$_2$FeH$_6$ and MgH$_2$. Minor MgO is present due to \added{the starting material} oxidation \added{during sample loading at room conditions}.}
+\label{fig:mgfeh-mgh2-xrd}
+\end{figure}
+%\input{mgh2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MgH$_2$}
+
+%\begin{cbox}
+%Here you need to talk about the existing data in the literature and discuss briefly what are known (polymorphism) and whare the the problems in existing dataset. \XWrevised
+%\end{cbox}
+
+We performed a series of experiments using Mg metal in pure H$_2$ medium and Ar + H$_2$ mixtures (Table~\ref{tab:runtable}).
+At 6--9\,{GPa} (Fig.~\ref{fig:mgh2-xrd}a), laser heating consistently yielded $\beta$-MgH$_2$ \cite{bastide_polymorphisme_1980}. 
+Above 16~{GPa}, $\varepsilon$-MgH$_2$ \cite{moriwaki_structural_2006} became the dominant phase and was recovered over a broad $P$–$T$ range (16--51~{GPa} and 2435--3277~K) (Fig.~\ref{fig:mgh2-xrd}c, d). 
+A distinct transition to $\delta$-MgH$_2$ \cite{moriwaki_structural_2006} was observed only in intermediate-pressure runs near 11~{GPa} (Fig.~\ref{fig:mgh2-xrd}b).  
+These results define a consistent sequence of MgH$_2$ phase relations under high {$P$–$T$} conditions, with $\beta$-MgH$_2$ stable at low pressure, $\delta$-MgH$_2$ restricted to a narrow intermediate field, and $\varepsilon$-MgH$_2$ stabilized over a broad high-pressure range. 
+The wide stability field of the $\varepsilon$ phase provides sufficient $P$–$V$ coverage to constrain its compressional behavior, as discussed below.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\added{Result (EOS, this one will be used for result section in the main article)}}
+
+\subsection{\added{Synthesis of starting materials}}
+
+\begin{cbox}
+    below provide brief summary paragraphs (one for Mg2FeH6 and the other for MgH2) for the synthesis of starting materials.  Should be brief and all the details above will be moved to SI.
+\end{cbox}
+
+\added{The Mg$_2$FeH$_6$ samples were synthesized at XXX--XXX GPa and XXXX--XXXX~K\@.
+Pure single phase was difficult to obtain.
+Depending on gas mixture medium, we obtained different phases, such as xxx, xxx, xxx, and xxx (see SI for detail).
+In general, we do not observe severe peak overlaps with these phases, and we were able to use at least XXX--XXX lines for calculating the unit-cell parameters.}
+
+\added{For the MgH$_2$ samples, ... write similar paragraph here.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stability of Mg$_2$FeH$_6$ Perovskite and \added{MgH$_2$} at High Pressures}
+
+Previous studies synthesized Mg$_2$FeH$_6$ at pressures below 2~{GPa} using mechanical or chemical routes \cite{george_bulk_2009,polanski_mg2feh6_2019, lang_insitu_2017,retuerto_highpressure_2010, retuerto_neutron_2015}.
+Ball-milling of MgH$_2$ and Fe mixtures, sometimes supplemented by Mg metal, can produce Mg$_2$FeH$_6$ under pressures of only $\sim$3~{MPa} and a few hundred kelvin after several hours of milling \cite{george_bulk_2009,polanski_mg2feh6_2019, lang_insitu_2017}.
+At higher static pressures, piston-cylinder experiments at 2~GPa and $\sim$1000~K similarly yielded Mg$_2$FeH$_6$ from MgH$_2$ + Fe starting mixtures \cite{retuerto_highpressure_2010, retuerto_neutron_2015}.
+In contrast, the present study found formation of Mg$_2$FeH$_6$ perovskite directly from elemental Mg, Fe, and H at much higher pressures at least up to 45~{GPa} and temperatures up to 3311~K, over a range of Mg-to-Fe ratios. 
+These results extend the stability field of Mg$_2$FeH$_6$ perovskite to conditions relevant to planetary interiors, demonstrating its stability at the $P$-$T$ relevant to planetary interiors \cite{asselli_formation_2013,puszkiel_new_2018}.
+
+\begin{cbox}
+    Write a similar paragraph for MgH2 here.
+\end{cbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Equation of State of Mg$_2$FeH$_6$ Perovskite}
+
+
+The 300\,K $P$-$V$ datasets used for the EoS analyses were not obtained from separate compression runs dedicated solely to EoS measurements. 
+Instead, unit-cell volumes were measured from the same synthesis experiments summarized in Table~\ref{tab:runtable}. 
+For Mg$_2$FeH$_6$, the phase was synthesized in multiple Mg-Fe runs at different $P$-$T$ conditions, quenched to 300\,K, and then measured during subsequent compression and decompression; the resulting $P$-$V$ data from these runs were combined for the EoS fit. 
+
+%%%%%%%%%%%%%%%%%%%%
+\deleted{The volume of Mg$_2$FeH$_6$ from multiple runs measured at high pressures is shown in Fig.~\ref{fig:mgfeh-eos}.} 
+The pressure-volume data were fit to {the} 3rd-order Birch-Murnaghan equation \cite{birch_elasticity_1952}, incorporating the isothermal bulk modulus ($K_0$), pressure derivative ($K_{0}'$), and volume at 1~bar ($V_0$). 
+$V_0$ was fixed at 267.63(7)~\AA$^3$, which was determined by the Rietveld refinement of the diffraction pattern measured at 1~bar of run F\_A1 (Table\,\ref{tab:runtable} and Fig.\,\ref{fig:gsas-V}). 
+The $V_0$ is consistent with the volume at ambient conditions that was reported in previous studies (Table~\ref{tab:unit-volume-mg2feh6}), ranging from 263.51 to 267.84(2)~\AA$^3$ \cite{george_bulk_2009, zhou_structural_2011, polanski_mg2feh6_2019, lang_insitu_2017, retuerto_neutron_2015, zareii_structural_2012, wang_preparation_2010, retuerto_highpressure_2010}. 
+
+
+Pressure was determined using Au as the primary pressure scale \cite{fei_internally_2007}, with MgO formed during heating serving as an independent secondary calibrant \cite{dorogokupets_equations_2007}. The two scales are consistent within uncertainty \added{$\pm$XX~GPa}, supporting the reliability of the pressure determination. 
+This is in agreement with the intercomparison study of \citeA{ye_intercomparison_2017}, which showed that Au- and MgO-based pressure scales are mutually consistent to within $\sim$1~GPa at 300 K over a broad pressure range.
+In this study, XRD data for Mg$_2$FeH$_6$ were collected up to 45~{GPa}, substantially extending the experimental pressure range compared to previous work. 
+In particular, \citeA{george_bulk_2009} reported measurements in silicone oil only up to $\sim$12~{GPa}. 
+Fitting our dataset yields $K_0 = 62(2)$~GPa and $K_0' = 5.1(2)$ (Table~\ref{tab:runtable}). 
+These values are systematically lower than those reported by \citeA{george_bulk_2009}, who obtained $K_0 = 75.4(4)$~{GPa} using silicone oil and $K_0 = 108.7(3)$~{GPa} without a pressure medium. 
+The significantly higher modulus reported for experiments without a pressure medium is consistent with stiffening caused by deviatoric stress \cite{mao_theory_2007}. 
+Although the silicone-oil results are closer to our values, they remain higher, likely reflecting both the limited hydrostaticity of silicone oil and the restricted pressure range of their dataset.
+
+To facilitate comparison, we also fitted our data with $K_0'$ fixed at 4, following \citeA{george_bulk_2009}. 
+This yields $K_0 = 71.3(5)$~{GPa}, which is closer to both their DFT result ($K_0 = 76.3$~{GPa}) and their silicone-oil measurement. However, even under this constraint, our values remain systematically lower. 
+This difference can be attributed to the improved experimental conditions in the present study. 
+Silicone oil becomes highly viscous and non-hydrostatic above a few gigapascals \cite{klotz_hydrostatic_2009}, leading to stress gradients that increase the apparent bulk modulus. In contrast, the use of pure H$_2$ and H$_2$–Ar mixtures in our experiments provides a more hydrostatic environment at 300~K. In addition, Mg$_2$FeH$_6$ was synthesized \textit{in situ} at high pressure and temperature, which promotes equilibration and reduces residual strain associated with ex situ prepared samples. These factors lead to sharper diffraction peaks and more consistent $P$–$V$ data, resulting in a more reliable determination of the intrinsic compressibility of Mg$_2$FeH$_6$.
+
+\added{While we attempted to expand the pressure coverage of synthesis and experiments, they were very difficult because of mechanical instability of diamond anvils induced by hydrogen when laser heating to temperatures over 2000~K are involved.}
+
+%%%%%%%%%%%%%%%%
+\begin{figure}[!bh]
+\centering
+\includegraphics[width=0.8\textwidth]{figs/MgFeH_rietveld_081925.pdf}
+\caption{Pressure-volume relationship of Mg$_2$FeH$_6$.
+(a) The measurements were conducted at 300\,K during compression and decompression. 
+The four shades of red circles indicate different proportions of Mg content within the starting Mg-Fe mixture; darker shades represent higher Mg content. 
+The solid black line is the best fit of the third-order Birch-Murnaghan (BM) equation of state (EoS) to the data, yielding the parameters: $V_0$ = 267.63(7)\,\AA$^3$, $K_0$ = 62(2)\,GPa, and $K_0'$ = 5.1(2). 
+The dashed-dotted and dotted lines corresponds to the BM EOS derived from previous cold compression measurements of Mg$_2$FeH$_6$ conducted in the silicone oil and without a pressure medium \cite{george_bulk_2009}.
+The dashed line represents the BM EOS from density functional theory (DFT) calculations \cite{george_bulk_2009}.
+(b) The difference between measured and fitted pressure. 
+}
+\label{fig:mgfeh-eos}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%
+\begin{table}[!bh]
+\centering
+\caption{The volumes and elastic properties of Mg$_2$FeH$_6$ perovskite obtained from fitting $P$-$V$ data to 3rd Birch-Murnaghan equation. We also include EOS parameters from \citeA{george_bulk_2009} for comparison. 
+$*$ denotes fixed parameters. }\label{bulk-params}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\arrayrulewidth}{1.5pt}
+\begin{tabular}{l
+                S[table-format=3.2(2)]
+                S[table-format=3.2(2)]
+                S[table-format=1.1(1)]
+                l}
+\hline
+Mg$_2$FeH$_6$ & {$V_0$ (\AA$^3$)} & {$K_0$ (GPa)} & {$K'_0$} & {Source} \\
+\noalign{\hrule height 0.75pt}
+Exp.\ in Ar + H$_2$        & {267.63(7)$^*$} & 62(2)   & 5.1(2) & This study \\
+Exp.\ in Ar + H$_2$        & {267.63(7)$^*$} & 71.3(5) & {4$^{*}$}& This study\\
+Exp.\ in silicone oil       & 267.62(1) & 75.35(4)& {4$^{*}$}    & George et al.\ (2014) \\
+Exp.\ no medium             & 268.2(1)  & 108.75(3)& {4$^{*}$}  & George et al.\ (2014) \\
+DFT                        & 263.51    & 76.31   & {4$^{*}$}   & George et al.\ (2014) \\
+\hline
+\end{tabular}
+%\begin{tabular}{llcclc}
+%\hline
+%Mg$_2$FeH$_6$  & $V_0$ ({\AA}$^3$) & $K_0$~(GPa) & $K'_0$  & Source\\
+%\noalign{\hrule height 0.75pt} 
+%Exp.\ in Ar + H$_2$  & 267.63(7)$^*$ & 62(2) & 5.1(2) & This study \\ 
+%Exp.\ in Ar + H$_2$ &  267.63(7)$^*$ & 71.3(5) & 4$^*$ & This study \\
+%Exp.\ in silicone oil & 267.62(1) & 75.35(4) & 4$^*$ & George et al. (2014) \\
+%Exp.\ no medium  & 268.2(1) & 108.75(3) & 4$^*$ & George et al. (2014) \\
+%DFT  & 263.51 & 76.31 & 4$^*$ &George et al. (2014)  \\ 
+%\hline
+%\end{tabular}
+\end{table}
+
+%\sisetup{
+%  separate-uncertainty = false,  % keeps ( ) instead of ±
+%  table-number-alignment = center,
+%  detect-mode = true,
+%  detect-family = true
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Equation of State of MgH$_2$}
+
+For MgH$_2$, Mg metal samples were heated at pressures spanning the stability ranges of the $\beta$, $\delta$, and $\varepsilon$ polymorphs, after which room-temperature compression data were collected for each recovered structure and grouped by polymorph for EoS analysis.
+
+Our results provide the first experimentally constrained EoS parameters for the $\gamma$- and $\varepsilon$-MgH$_2$ polymorphs by fitting room-temperature compression data (0--50~{GPa}) to the 3rd-order Birch–Murnaghan equation (Table~\ref{tab:mgh2-eos-params}). 
+For $\gamma$-MgH$_2$, stable between 0--6~{GPa}, the fit yields $K_0=51{\pm}4$~GPa with $K_0'=4.1{\pm}0.2$ (with $V_0$ fixed to 121.11~Å$^3$). 
+In contrast, the high-pressure $\varepsilon$ phase, dominant \replaced{at pressures above 14~GPa}{between 14 and 50~GPa}, \replaced{we obtained}{is characterized by} $V_0=102.7{\pm}1.0$~Å$^3$ and $K_0=54{\pm}3$~GPa, with fixing $K_0'$ to 4 (Fig.~\ref{fig:mgh2-eos}). 
+The intermediate $\beta$ and $\delta$ phases remain insufficiently constrained due to limited \replaced{pressure stability}{$P$–$V$ coverage}, precluding meaningful EoS fitting. 
+
+Previous experimental studies identified the $\varepsilon$ phase and documented its structural evolution \sidecomment{what do you mean by ``structural evolution''?  You mean just phase transition?  Or they report how atomic position changes with pressure?  Be specific} under pressure \cite{moriwaki_structural_2006}, but did not report EoS parameters. 
+As a result, its compressional behavior has largely been inferred from first-principles calculations \cite{cui_structural_2008}. 
+The EoS presented here provides the first experimental constraint on the compressibility of $\varepsilon$-MgH$_2$. 
+The measured $P$–$V$ relation \replaced{agrees with the EoS from the}{follows the trends predicted by} DFT \added{study} \cite{cui_structural_2008}\deleted{, supporting the reliability of those calculations}.
+
+The quality of the EoS constraints reflects the experimental approach used in this study. 
+The combination of \textit{in situ} synthesis and compression in H$_2$ media stabilizes the $\varepsilon$ phase over a broad pressure range and yields consistent diffraction data with sharp peaks (Fig.~\ref{fig:mgfeh-mgh2-xrd}b). 
+$\varepsilon$-MgH$_2$ is stable to at least 50~{GPa} in our experiments and is predicted to persist to $\sim$100~{GPa} \cite{cui_structural_2008}, indicating that it is the relevant MgH$_2$ polymorph at high pressure. 
+The EoS parameters reported here therefore provide a direct basis for evaluating the density and thermodynamic properties of MgH$_2$ under deep planetary conditions.
+
+
+%The $\varepsilon$-MgH$_2$ EoS presented here represents the first experimentally derived compressibility for this phase, which remains stable to at least 50~{GPa} and is predicted to persist to $\sim$100~{GPa} \cite{cui_structural_2008}, making it the key MgH$_2$ polymorph governing the density structure of H-rich planetary interiors.
+
+%Part of this offset \urgentsidecomment{Which offset are you talking about.}
+%can arise from (i) parameter covariance in BM3 fitting (a larger fitted $K'_0$ generally correlates with a smaller $K_0$ over a limited $P$ range), (ii) microstructural differences between ball-milled, low-$P$/$T$ material and our high-$P$/$T$ LHDAC product (grain size, residual porosity/microcracks, defect populations, or subtle H-vacancy concentrations can increase apparent compressibility), and (iii) differences in pressure scale and hydrostaticity across experiments. 
+%A constrained refit with fixed $K'_0$ (e.g., $K'_0=4$) can be reported as a robustness check to gauge the sensitivity of $K_0$ to the $K_0$-$K'_0$ trade-off.
+%\urgentcomment{So then what happended if you do this for your data?  Do not write in this way.  You raise question but did not answer.  This should not happen in science writing.}
+
+%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Effect of pressure medium (stress state).}
+
+%The contrast within \citeA{george_bulk_2009}'s dataset ($K_0=75.4$~{GPa} in silicone oil vs.\ $108.7$~{GPa} with no medium) highlights the strong influence of non-hydrostatic stress on the derived $P$-$V$ relationship. 
+%Silicone oil becomes highly viscous and non-hydrostatic above a few gigapascals, introducing stress gradients that artificially stiffen the apparent compressibility \cite{klotz_hydrostatic_2009}.
+%In contrast, pure H$_2$ and H$_2$+Ar mixtures provide a more quasi-hydrostatic environment to high pressures at 300~K than silicone oil, reducing pressure and stress gradients.  
+%Consequently, our $P$-$V$ data obtained in H$_2$ and H$_2$+Ar media yield bulk moduli that align more closely with the DFT results of \citeA{george_bulk_2009}, indicating that these media recover a near-intrinsic compressibility compared with experiments conducted without a pressure medium or with silicone oil.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Run-to-run consistency and composition.}
+
+% Despite using different Mg:Fe starting ratios and synthesizing Mg$_2$FeH$_6$ in situ at high $P$-$T$, our EOS parameters from independent runs are mutually consistent, indicating that the recovered Mg$_2$FeH$_6$ stoichiometry and defect chemistry are reproducible within uncertainty. This internal coherence supports the reliability of the reported $V_0$, $K_0$, and $K'_0$, and suggests that the lower $K_0$ we obtain reflects intrinsic material response under quasi-hydrostatic loading rather than uncontrolled sample-to-sample variability.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{figs/MgH2_pv.pdf}
+\caption{Pressure-volume relationship of MgH$_2$.
+(a) The measurements were conducted at 300\,K during compression and decompression. 
+The four shades of pink-purple circles indicate different structures; darker shades represent an MgH$_2$ polymorph that becomes stable at comparatively higher pressures. 
+The solid black line is the best fit of the third-order Birch-Murnaghan (BM) equation of state (EoS) to the data, yielding the parameters: $V_0$ = 102.7(10)\,\AA$^3$, $K_0$ = 54(3)\,GPa, and $K_0'$ = 4 (fixed). 
+The dashed-dotted and dotted lines corresponds to the P-V curve from previous DFT calculations by \citeA{cui_structural_2008}.
+(b) The difference between measured and fitted pressure. 
+}
+\label{fig:mgh2-eos}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implications}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Link between this work and hydrogen-rich sub-Neptunes}
+%\urgentcomment{Write a brief introductory paragraph about how your work applies to hydrogen-rich sub-Neptunes.  
+%(1) What are sub-Neptunes? Discuss hydrogen-rich envelope (or atmosphere) and rocky interior models. Cite related modeling works. (2) What are the pressures and temperatures expected at the boundary between the hydrogen envelope and the interior in sub-Neptunes? Is your P-T condition related to that? Read Taehyun's work as a starting point for addressing these questions.
+%The main motivation now can be found from Kim2023PNAS paper.
+%What are the main questions remaining after Kim2023PNAS study? (1) Mg2FeH6 remains stable at higher pressures? (2) any phase transitions in Mg2FeH6? (3) what is the density of Mg2FeH6 and how does it compare with MgSiO3 and Mg2SiO4 of the rocky planet materials.}
+
+Sub-Neptunes in a range of $2{-}3~R_{E}$ are believed to consist of cores of rock and Fe metal enveloped by massive hydrogen-helium atmospheres, i.e., gas dwarf \cite{wolfgang_how_2015, jontof-hutter_secure_2016}.  
+Some other sub-Neptunes may incorporate substantial water as an envelope on top of the \replaced{silicate-metal}{rocky} interior, forming waterworlds \cite{luque_density_2022, tsiaras_water_2019, benneke_water_2019, burn_radius_2024, venturini_nature_2020}.
+
+At the boundary between the hydrogen-rich envelope and the silicate-metal interior of gas dwarf, pressures are typically estimated at 1--10\,{GPa} \cite{kite_superabundance_2019, kite_atmosphere_2020}, though in more massive sub-Neptunes they may reach up to $\sim$50\,{GPa} for $\sim$4~$M_{E}$ planets \cite{schlichting_chemical_2022}, with interface temperatures around 3000\,K \cite{horn_building_2025}. 
+These high temperatures arise from the strong compression and radiative insulation of the deep H$_2$-He envelope, which traps residual formation and radiogenic heat.
+Under such conditions, the base of the envelope overlies a global, long-lived magma ocean \cite{vazan_contribution_2018,vazan_rocky_2023, kite_atmosphere_2020, schlichting_chemical_2022}. 
+Recent studies have highlighted that hydrogen solubility in magma increases sharply with pressure, potentially driving extensive ingassing of H$_2$ into planetary interiors \cite{hirschmann_solubility_2012, olson_nebular_2019,kimura_predicted_2022, young_phase_2024, gilmore_core_2026}. \sidecomment{Add Kim2023 PNAS} 
+This process has been proposed as a key mechanism behind the ``radius cliff'' near $3R_{E}$, where hydrogen sequestration into magma suppresses further atmospheric growth \cite{kite_superabundance_2019, kim_stability_2023}.
+
+Through high pressure experiments, \citeA{kim_stability_2023} showed that Mg$_2$FeH$_6$ perovskite crystallizes at 8--13\,{GPa} from reaction between MgO liquid, Fe liquid, and H$_2$ fluid. 
+Our study extends the $P$-$T$ conditions, showing that Mg$_2$FeH$_6$ perovskite remains stable at least up to 45\,{GPa} based on the continuous heating observations.
+These $P$-$T$ conditions are directly relevant to the envelope-core interface of large sub-Neptunes. %suggesting that hydride formation could be a robust sink for hydrogen \cite{kim_stability_2023}. 
+However, the melting temperature of Mg$_2$FeH$_6$ is not yet well constrained and may be \added{molten} below the hot interface temperatures predicted for young or massive sub-Neptunes ($>$2000 K) \cite{kite_atmosphere_2020}. 
+Therefore, \added{crystalline} Mg$_2$FeH$_6$ is most likely to be stable in cooler sub-Neptunes or in later evolutionary stages after interior crystallization, where it could act as a robust solid-phase sink for hydrogen at the base of the H$_2$ envelope \cite{kim_stability_2023}. 
+\added{It is also important to note that the density difference between solid and melt reduces with pressure} \addcite.  
+\added{Therefore, the EoS of Mg$_2$FeH$_6$ presented here can be used as a first-order approximation for the molten hydride interior as well.}
+According to our study, Mg$_2$FeH$_6$ does not undergo phase transitions up to 45\,{GPa} and remains to have perovskite structure. 
+
+Compared with MgSiO$_3$ bridgmanite (\replaced{b}{B}rd), despite containing Fe, Mg$_2$FeH$_6$ perovskite is 20--33\% less dense between 0 to 45~{GPa} based on our EOS measurements and the EOS of bridgmanite \cite{tange_pvt_2012} (Fig.\,\ref{fig:rho-p}). 
+It is also 13--23\% less dense than MgO over the same pressure range \cite{dorogokupets_equations_2007}.
+Mg$_2$FeH$_6$ adopts a vacancy-ordered double-perovskite structure (space group $Fm\overline{3}m$), distinct from the corner-sharing octahedral framework of MgSiO$_3$ bridgmanite.
+The lower density of Mg$_2$FeH$_6$ is consistent with its hydrogen-rich composition and crystal structure, which contains isolated FeH$_6$ octahedra separated by ordered vacancies (Fig.\,\ref{fig:structure}). 
+Whether this structural relationship persists beyond the pressure range investigated here remains to be determined.
+%This open, vacancy-rich lattice, together with its high hydrogen content, accounts for the significantly lower density of Mg$_2$FeH$_6$ perovskite relative to silicate perovskite. 
+%Mg$_2$FeH$_6$ perovskite adopts a vacancy-ordered double perovskite lattice, akin to the orthorhombic perovskite structure of bridgmanite, but distinguished by its capacity to incorporate large amounts of hydrogen \cite{retuerto_highpressure_2010, zareii_structural_2012}. 
+%The combination of structural openness and intrinsic hydrogen incorporation makes Mg$_2$FeH$_6$ an effective solid-phase host for hydrogen under high-pressure conditions.
+%\textcolor{red}{This structural distinction results in the lower density of Mg$_2$FeH$_6$ compared with bridgmanite \cite{tange_pvt_2012}, although their density-pressure curves remain nearly parallel, reflecting a degree of structural similarity (Fig.\,\ref{fig:rho-p}).}
+
+%This structural feature, combined with its low density, highlights Mg$_2$FeH$_6$ as a potential reservoir for dissolved hydrogen in sub-Neptune interiors, fundamentally altering our understanding of hydrogen partitioning between atmosphere and magma.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{How you calculated MR relations}
+%\urgentcomment{Explain how you calculated the MR diagram in Fig. 7. (1) You do not need to explain the theory and equations, but please cite the mass-radius calculation papers; (2) specify which equations of state you used and cite the papers from which you obtained the EOS parameters of different materials shown in the figure; (3) discuss why you calculated at 300 K. Consider whether this would make a difference compared to other studies. I believe it does not. You can state that within X\%, our calculation results match the mass-radius curves from other studies (references needed).}
+
+The mass-radius relation of Mg$_2$FeH$_6$ perovskite was calculated using the EoS parameters obtained in this study. 
+We adopted 300-K isothermal conditions, following previous works showing that thermal effects are secondary compared with pressure in determining planetary densities \cite{valencia_internal_2006, valencia_radius_2007, zeng_detailed_2013, zeng_growth_2019}.
+%For example, our bridgmanite (Brd) mass-radius relation calculated for 300~K closely overlaps with that of \citeA{zeng_growth_2019}, which assumes an isothermal interior at 300~K for silicates and Fe metal, 
+Temperature dependence becomes more important for volatile-rich envelopes or outer layers at lower pressure, not for the deep mineral interiors typically investigated in rocky exoplanets \cite{zeng_new_2021, zeng_detailed_2013}.
+
+
+%%%%%%
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{figs/MgFeH_RE_ME_4panel.pdf}
+\caption{
+Mass-radius relations of planetary \replaced{materials and settings}{interior compositions relevant to sub-Neptunes, calculated at 300~K}. 
+\replaced{Gray}{Brown} circles denote observed exoplanets for reference. \cboxinline{this is now missing.  Add them back to b,c,d.}
+(a) Comparison of \replaced{single}{single-phase planetary} materials. 
+Curves are shown for Fe metal (brown), MgSiO$_3$ bridgmanite (\replaced{b}{B}rd; black, \citeA{tange_pvt_2012}), Mg$_2$FeH$_6$ (red; this study), MgH$_2$ (purple; this study), and H$_2$O (blue, \citeA{zeng_growth_2019}). \replaced{Mg$_2$FeH$_6$ is less dense than brd while more dense than H$_2$O.  MgH$_2$ almost completely overlaps H$_2$O.}{The hydrides Mg$_2$FeH$_6$ and MgH$_2$ exhibit densities intermediate between rocky silicates and H$_2$O-rich compositions.}
+(b) Comparison \replaced{with}{of} commonly adopted \added{waterworld} sub-Neptune \deleted{core and interior} models\replaced{:}{. Curves include} 2MgO + Fe (black), 2Brd + Fe (gray), Mg$_2$FeH$_6$ (red), Brd + 25~wt\% H$_2$O (cyan), and Brd + 50~wt\% H$_2$O (green). 
+The Mg$_2$FeH$_6$ curve overlaps \added{models} with \replaced{H$_2$O envelopes}{volatile-rich interior models} despite containing no H$_2$O\deleted{, illustrating the density reduction associated with hydrogen incorporation into hydrides}. 
+The MgO equation of state was taken from \citeA{dorogokupets_equations_2007}, and the layered models were calculated using \textsc{BurnMan} \cite{myhill_burnman_2023}.
+(c) Comparison \replaced{with commonly adopted}{between conventional} gas-dwarf models\deleted{ and hydrogen-ingassed interiors}. 
+\replaced{The Mg$_2$FeH$_6$ + 25~wt\% H$_2$O model (purple) and the 2MgO + Fe + H$_2$ models (gray) are for comparing effects of element exchange between the interior and envelope in a closed system.}{The Mg$_2$FeH$_6$ + 25~wt\% H$_2$O model (purple) represents a hydrogen-ingassed waterworld, while 2MgO + Fe + 2~wt\% H$_2$ and 2MgO + Fe + 5~wt\% H$_2$ (gray) represent hydrogen-uningassed gas dwarfs following \citeA{zeng_growth_2019}.} 
+The Brd + 50~wt\% H$_2$O model (green) and pure Mg$_2$FeH$_6$ (red) are shown for comparison.
+(d) Comparison between an undifferentiated hydride\deleted{-rich} planet and differentiated hydride\deleted{-bearing} planets\replaced{. We assumed that hydrogen not included in the structure of Mg$_2$FeH$_6$ exists in the envelope}{ containing atmospheric H$_2$}. 
+\deleted{Mg$_2$FeH$_6$ (red) represents a compact hydride-rich interior in which hydrogen is stored in a condensed phase, whereas 2MgH$_2$ + Fe + H$_2$ (blue) and 2MgH$_2$ + FeH + 0.5H$_2$ (purple) represent differentiated assemblages in which part of the hydrogen inventory resides in a low-density atmosphere.
+The large separation between these curves illustrates the strong influence of hydrogen partitioning between condensed and atmospheric reservoirs on planetary radius.}
+%Mass-radius relations of observed planets (brown circles) compared with mass-radius relations of planetary materials candidates.
+%All the relations presented here are for 300~K to facilitate the comparison.
+%In (a), we focus on comparing single phase cases and cases of the sub-Neptunes “cores” used widely in the literature.
+%We include mass-radius relations of Mg$_2$FeH$_6$ using EoS from our experiments (thick red), MgSiO$_3$ bridgmanite (brd) from \citeA{tange_pvt_2012} (black), Fe metal (brown) and H$_2$O (blue) from \citeA{zeng_growth_2019}.
+%We also include two layer models, such as 2MgO + Fe (thick black), 2Brd + Fe (thin black) using \textsc{BurnMan} \cite{myhill_burnman_2023}, as well as Brd + 25~wt\% H$_2$O envelope (thin green) and Brd + 50~wt\% H$_2$O envelop (thin olive) from \citeA{damasso_eyes_2018, zeng_growth_2019}.   
+%For MgO, we used EoS from \citeA{dorogokupets_equations_2007}.
+%    , and the thick black curve shows a two-layer model of MgO and Fe (2:1 mass ratio) calculated using \textsc{BurnMan} \cite{myhill_burnman_2023}. Thin black lines denote mass-radius relations of pure MgSiO$_3$ bridgmanite (Brd) and a mixed 2Brd + Fe model (molar ratio 2:1,  \cite{myhill_burnman_2023}) computed in this study. Thin brown, blue, and green lines show, respectively, pure Fe, pure H$_2$O, and a Brd + 50\% H$_2$O (all percentages in front of H$_2$O or H$_2$ are by weight unless otherwise noted) planet from \citeA{zeng_growth_2019}. Thin olive lines correspond to a Brd + 25\% H$_2$O model from the same reference \citeA{zeng_growth_2019}. Light yellow points represent observed exoplanets.
+%In (b), we highlight multi-layer models. 
+%The Mg$_2$FeH$_6$ + 25~wt\% H$_2$O model represents ``hydrogen-ingassed water world'' (thick purple) to compare with conventional ``hydrogen-uningassed gas dwarf'' (2MgO + Fe with varying amount of H$_2$; gray) \cite{zeng_growth_2019}
+%We also include other curves from single phase cases and sub-Neptune core candidates for comparison.
+}
+\label{fig:M-R}
+\end{figure}
+%%%%%%
+%\XWReminder[I rewrite this part and move the old text behind]
+%\subsection*{new writing}
+
+
+% statement for comparison with other single materials
+Fig.\,\ref{fig:M-R} illustrates how the incorporation of hydrogen into solid phases can alter the expected mass-radius relations of sub-Neptunes. 
+In Fig.\,\ref{fig:M-R}a, the mass-radius relation of Mg$_2$FeH$_6$ lies between those of bridgmanite and H$_2$O.
+\added{It is also notable that the mass-radius relation of MgH$_2$ overlaps that of H$_2$O almost completely.}
+
+% statements for comparison with binary planets
+For the cores of sub-Neptunes, Earth-like (2Brd + Fe) composition has been considered in majority of models in the literature \cite{valencia_internal_2006, sotin_mass_2007, zeng_detailed_2013}.
+Si was not included in our experiments \replaced{and therefore m}{as it is unknown if it can dissolve in Mg$_2$FeH$_6$ perovskite.  
+M}ore comparable mineral phase \replaced{is}{would be then} MgO.
+The mass–radius curve of MgO lies slightly above that of bridgmanite, with planetary radii approximately 1\% larger than those of bridgmanite at a given mass, up to 20 $M_E$ (Fig.~\ref{fig:M-R}b).
+\added{Therefore, changing from brd to MgO does not make significant difference in making comparison with rocky mass-radius relations.}
+In terms of cation composition, 2MgO + Fe can make a good comparison with Mg$_2$FeH$_6$.
+\replaced{T}{In fact t}he comparison can \added{also} reveal the impact of replacing O with H, or change in mineralogy from oxides (or silicates) to hydrides.
+In this case, ingassing effects here involves dissociation of H--H bond to form H$^{-}$.  
+It is also notable that not all H in Mg$_2$FeH$_6$ is in an ionized form, but may be bonded covalently \cite{retuerto_neutron_2015}.
+In fact, such possible covalently bonded H suggests possible metallic state of Fe in the structure.
+The picture here is different from mixing considered between oxide melt and hydrogen, where hydrogen is dissolved in a form of H$_2$ \cite{gilmore_core_2026}.
+The ingassing here we consider is through conversion of oxide into hydride.
+\added{Also, the comparison can be viewed as differentiated rocky (2MgO + Fe) versus undifferentiated hydride (both Mg and Fe in hydride).}
+\added{Fig.~\ref{fig:M-R}b shows that waterworlds cannot be distinguished from hydrogen ingassed planets with little atmosphere, adding important previously unknown degeneracy in the analysis.}
+
+Despite the fact that atomic size of oxygen are much greater than that of hydrogen, radius of Mg$_2$FeH$_6$ planet is greater \added{in radius} than that of 2MgO + Fe by $\sim$20\% for given mass.  
+It can be attributed to the fact that anionic hydrogen (H$^{-}$) has a radius (1.53~{\AA}) similar to that of ionized oxygen (O$^{2-}$, 1.40~{\AA} \cite{shannon_effective_1969}).
+Furthermore, the repulsion between hydrogen atoms around the empty octahedral sites allow the structure to maintain larger unit volume.
+Therefore, hydrogen ingassed core of sub-Neptune through mineralogical changes can lead to a core with density substantially smaller than ``Earth-like'' (Fig.~\ref{fig:M-R}b).
+
+% coreless discussion
+Another interesting aspect of Mg$_2$FeH$_6$ is that it has both Mg and Fe together in one crystal structure under reducing condition for formation.
+Mg is lithophile and Fe is siderophile and majority of Fe exists as a separate metallic core at the center of rocky planets.
+\added{Also Mg is in ionic state in Mg$_2$FeH$_6$.}
+In fact, our 2MgO + Fe mass-radius model was calculated for a two-layer \added{differentiated} model (Fe metal near the center of the core and MgO in the outer layer). 
+Stability and formation of Mg$_2$FeH$_6$ from MgO liquid and Fe metal liquid under hydrogen-rich conditions \cite{kim_stability_2023} suggest that under reducing conditions a significant amount of Fe could well \replaced{be contained in hydrides}{be distributed over entire depth range of the sub-Neptune's core} rather than forming a separate metallic layer near the center of the planet, potentially resulting in ``coreless'' planet configuration.
+Such ``coreless'' planet has been discussed before \cite{elkins-tanton_coreless_2008}, and it was hypothesized that such a planet requires oxidizing conditions or water rich conditions for the formation.  
+The stability of Mg$_2$FeH$_6$ hydride suggests that such coreless configuration \replaced{could}{can} be also possible under reducing conditions through formation of hydrides.
+
+% left over but should be added above.
+The 2MgO + Fe + 5H$_2$ (or 7~wt\% H$_2$) model can be regarded as gas dwarf without any hydrogen ingassing \replaced{to the interior}{with Earth-like core}.
+While we use MgO to match with the hydrogen-ingassed waterworld model,\sidecomment{``hydrogen-ingassed waterworld model'' which model are you referring to?  Be specific, show chemical formulas.} the 2MgO + Fe core shows higher density than the 2MgSiO$_3$ + Fe model which has been widely used in the literature as an ``Earth-like core'' model for the sub-Neptune \cite{valencia_internal_2006, sotin_mass_2007, zeng_detailed_2013}.\sidecomment{why this is important and where can I find such information?  Fig.~\ref{fig:M-R} do not seem to have this comparison.}
+
+% multi-layer cases
+In Fig.\,\ref{fig:M-R}c, we compare multi-layer models.
+We first compare cases \replaced{where amount of elements}{where fraction of elements} are preserved: (1) 2MgO + Fe + 5H$_2$ (or 7~wt\% H$_2$) \replaced{versus}{and} (2) Mg$_2$FeH$_6$ + 2H$_2$O (or 25~wt\% H$_2$O).
+Case \# 1 can be regarded as hydrogen uningassed case, in other words, all hydrogen exists in envelope.
+Case \# 2 can be viewed as a configuration formed from complete conversion from oxide + metal configuration to hydride configuration by hydrogen reaction with oxides \cite{horn_building_2025, kim_stability_2023}.
+\added{We found that severe ingassing of hydrogen can reduce the radius by XX-XX\% (Fig.~\ref{fig:M-R}c), making a hydrogen-rich planet looking very similar to waterworlds in mass-radius space.}
+
+These models are introduced here only to compare how redistribution of elements \deleted{and the redox reaction} can change the mass-radius relations without considering chemical compatibility of the materials in the models: \added{particularly between H$_2$O and Mg$_2$FeH$_6$}.
+\replaced{In addition, recent experiments have shown that}{In fact, it is not feasible that} 2MgO + Fe core \added{unlikely} remains unreacted with hydrogen envelope \cite{kim_stability_2023}.
+\deleted{It is also important that Mg$_2$FeH$_6$ may not form equilibrium assembly with H$_2$O and they will likely react and produce oxides.}  
+%However, it is also possible that such \sidecomment{this sentence is incomplete.}
+We should note that the combination of the materials we use here is only to estimate the effect of H$_2$ ingassing\deleted{ and redox reactions (from H$_2$ in envelope to hydride in the core)}.
+It remains unclear at the moment whether Mg$_2$FeH$_6$ core can be stable under equilibrium with H$_2$O rich envelope, while we cannot rule out the possibility of the coexistence under metastable nonequilibrium conditions.
+If a significant amount of H$_2$ exists in the atmosphere, it can reduce the activity of H$_2$O and potentially allow for the interior to maintain the hydrogen mineralogy.
+
+% However, this conclusion becomes substantially more fragile once alternative core compositions—such as hydride‑rich “rock‑like” cores—are considered. Recent work on the stability and equation of state of hydrides such as MgH₂, FeHₓ, and similar species in the interiors of sub‑Neptunes shows that incorporating a substantial fraction of hydrogen into the core via chemical bonding (e.g., Kite et al. 2019; Plesa et al. 2023; and follow‑up analyses on core–envelope miscibility such as those discussing H dissolution in silicate melts) can lower the bulk density of what is effectively still a “rocky” core material without invoking a separate ice‑rich layer. Crucially, the mass–radius relation of a hydride‑rich core (rock + bound H) can closely parallel or even overlap with the mass–radius curve of a rocky core plus a water‑rich envelope, because both solutions yield a somewhat lower average density at a given mass. Where a purely rocky core without volatiles gives a compact, small‑radius object, and where a standard ice‑core (rock + H₂O) gives a larger radius along a distinct water‑rich track, a hydride core can occupy an intermediate or overlapping locus in mass–radius space, mimicking the effect of extra water without requiring a distinct ice‑rich core component. As a result, data points that were previously interpreted as favoring lighter ice‑rich cores can instead be consistent with a more hydride‑rich, but still fundamentally rock‑dominated core plus a modest envelope of H/He; the observational evidence no longer clearly discriminates between these two possibilities, and the earlier argument for rejecting “lighter” cores on mass–radius grounds is significantly weakened.
+
+\deleted{In addition to Mg$_2$FeH$_6$, other hydrides such as }MgH$_2$ \added{also} exhibit\added{s} \deleted{similarly} low \replaced{density, even lower than Mg$_2$FeH$_6$ and matches that of H$_2$O (Fig.~\ref{fig:M-R}a)}{densities relative to oxide and water phases}. 
+Based on the EoS determined in this study, $\varepsilon$-MgH$_2$ remains less dense than H$_2$O (ice VII) up to at least 200~GPa. 
+This indicates that the reduction in density associated with hydrogen incorporation is not unique to Mg$_2$FeH$_6$, but is \added{likely} a general feature of \replaced{hydrides}{hydrogen-bearing minerals}. 
+As a result, hydrogen-rich rocky interiors composed of hydrides can achieve bulk densities comparable to those of water-rich (ice-dominated) planets.
+
+\replaced{I}{On the other hand, i}cy cores form beyond the snow line through the accretion of ice‑rich pebbles, as expected in core‑accretion and pebble‑accretion models of sub‑Neptune formation \cite{bitsch_dry_2021, bean_nature_2021, burn_radius_2024, venturini_nature_2020}. 
+These cores can incorporate a substantial fraction of water ice, leading to interiors that are less dense than purely rocky material at the same mass, and thereby helping to \replaced{increase}{inflate} the planet's radius without requiring an extremely massive H/He envelope \cite{zeng_growth_2019}. 
+However, if a hydride‑rich ``rock‑like'' core can reproduce a similar mass–radius relation, then the observed bulk density no longer uniquely distinguishes between an ice-rich interior and a hydrogen-enriched rocky interior. 
+For example, the mass-radius of MgH$_2$ is just closely below the H$_2$O's curve, and Mg$_2$FeH$_6$ can reproduce the curve by Brd + 25~wt\% H$_2$O (Fig.~\ref{fig:M-R}b). 
+The hydrogen stored in hydrides lowers the core density in much the same way as a water‑rich interior, introducing a degeneracy between icy and hydride-rich core compositions in interpretations based solely on mass--radius measurements.
+In this case, the same mass–radius data attributed to a low‑density icy core formed beyond the snow line could instead be consistent with a hydride‑rich rocky core that has simply incorporated more hydrogen chemically, reallocating what previously looked like a requirement for ice into a different core–envelope partitioning.
+
+An additional consequence of Mg$_2$FeH$_6$ stability is that it provides a mechanism for large changes in planetary radius without requiring a change in the total hydrogen inventory.
+Figure\,\ref{fig:M-R}d shows that planets composed of Mg$_2$FeH$_6$ are substantially more compact than planets containing the same Mg--Fe--H components partitioned into MgH$_2$, Fe (or FeH), and \replaced{hydrogen-rich envelope}{a free H$_2$ reservoir}.
+For example, at 1~M$_{\oplus}$, a pure Mg$_2$FeH$6$ planet has a radius of approximately 1.1~R$_E$, whereas the assemblages 2MgH$_2$ + Fe + H$_2$ and 2MgH$_2$ + FeH + 0.5H$_2$ yield radii of approximately 14 and 12~R$_E$, respectively.
+Across the 0.5--20~M$_{\oplus}$ range, the decomposed assemblages produce radii roughly an order of magnitude larger than those of Mg$_2$FeH$_6$.
+This contrast arises because hydrogen stored within Mg$_2$FeH$_6$ is incorporated into a dense condensed phase, whereas decomposition transfers a substantial fraction of the hydrogen into a low-density atmospheric reservoir that dominates the planetary volume.
+From a planetary structure perspective, Mg$_2$FeH$_6$ may represent an undifferentiated hydride-rich interior in which hydrogen is stored primarily in solid phases, whereas the decomposed assemblages correspond to differentiated planets consisting of metallic Fe-bearing interiors overlain by extended H$_2$ atmospheres.
+Consequently, \replaced{how much hydrogen can be consumed to form hydride for the interior}{formation or breakdown of Mg$_2$FeH$_6$ at the envelope, interior boundary} could strongly modify planetary radii while preserving nearly the same bulk Mg--Fe--H composition.
+Such redistribution of hydrogen between \replaced{interior and envelope}{condensed and atmospheric reservoirs} provides a potential mechanism for generating substantial diversity in observed sub-Neptune radii without requiring large differences in total hydrogen abundance.
+
+%The Mg$_2$FeH$_6$ + 2H$_2$O (25~wt\% H$_2$O) model (or hydrogen-ingassed waterworld) yields radii larger than those of a pure Mg$_2$FeH$_6$ planet by only 0.1~$R_E$, showing minimal impact considering uncertainties in astrophysical mass-radius relations measurements.
+%Although a system with 2MgO + Fe + 5H$_2$ corresponds to a $\sim$7~wt\% H$_2$ envelope, we adopted 5~wt\% H$_2$ from \citeA{zeng_growth_2019} because a simplified two-layer model is more robustly constrained than a full three-layer structure.
+
+%At 5~$M_E$, a un-ingassed gas dwarf (2MgO + Fe core with a 5~wt\% H$_2$ envelope) is about 4--5 times larger in radius than a hydrogen-ingassed waterworld (Mg$_2$FeH$_6$ with a 25~wt\% H$2$O envelope), approximately twice as large at 20~$M_E$. 
+%This comparison underscores that ingassing can dramatically reduce the radius of sub-Neptunes and disregarding hydrogen ingassing can potentially severely underestimate the amount of hydrogen in sub-Neptunes.
+
+%The H$_2$ ingassed waterworld is only 0.05~$R_E$ smaller than the Brd + 50\% H$_2$O model (conventional waterworld model) at equivalent mass. 
+
+%The near-parallel slopes of these two curves indicate that hydrogen ingassing through hydride formation allows a planet to achieve similar radii with a thinner volatile envelope. If this process operates efficiently at the envelope-core boundary, previous mass-radius inferences may have overestimated the mass fraction of H$_2$O or H$_2$ envelopes by as much as 100\%.
+
+%To quantify this effect, we compared models of Mg$_2$FeH$_6$ + 25 \% H$_2$O with a chemically equivalent system, 2MgO + Fe + 5H$_2$, representing the same bulk atomic ratios in the absence of hydride formation.
+%For a consistent and straightforward comparison, we referenced the H$_2$ + Earth-like rocky core models from \citeA{zeng_growth_2019}. 
+%Hydride-bearing interiors thus represent a hidden hydrogen reservoir capable of reducing the apparent volatile content inferred from density alone \cite{kim_stability_2023}.
+
+The ability of Mg-Fe-H phases to incorporate hydrogen at tens of GPa pressures introduces a distinct mode of hydrogen storage in sub-Neptune interiors that the one governed by chemical reaction rather than physical solubility \cite{kim_stability_2023, werlen_subneptunes_2025}. 
+The envelope-core reaction forming Mg$_2$FeH$_6$ or related hydrides provides a thermodynamically favorable pathway for hydrogen sequestration, particularly as the planet cools and crystallizes \cite{kim_stability_2023, horn_reaction_2023}. 
+This mechanism should be considered for the diversity of observed sub-Neptune densities, some of which appear too compact to sustain thick gaseous envelopes but too light to be purely rocky \cite{kite_atmosphere_2020, bean_nature_2021}. 
+As hydrogen is trapped in solid hydrides, the planet's radius remains inflated relative to super-Earths yet smaller than volatile-dominated un-ingassed gas dwarf models, producing the intermediate regime observed in Fig.\,\ref{fig:M-R}.
+
+% reconfigure this paragraph for new flow
+%We found that if a large amount of hydrogen can be ingassed into the core in gas dwarf sub-Neptunes, the core density likely reduce severely.
+%In fact, our experimental results show that Fe (typically viewed as separate metallic part) and Mg (typically viewed as rocky refractory part of the core) can form a hydride together.
+%The lower density of Mg$_2$FeH$_6$ suggests if hydrogen ingassing to the core is considered, the estimate for the thickness of volatile-rich envelope should decrease significantly.
+%the rocky (2Brd + Fe) and volatile-rich (Brd + 50~wt\% H$_2$O), demonstrating that Mg$_2$FeH$_6$ possesses an intermediate density despite containing iron.
+%This position reflects the unique structural character of Mg$_2$FeH$_6$: a vacancy-ordered perovskite lattice that accommodates large amounts of hydrogen. Consequently, a less-dense sub-Neptune with a Mg$_2$FeH$_6$ core does not require a thick volatile envelope. 
+%This argument can be best demonstrated by nearly overlapping mass-radius relations of Mg$_2$FeH$_6$ and the Brd + 25~wt\% H$_2$O in Fig.~\ref{fig:M-R}a.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Why that new learning is important for exoplanet research?}
+%\urgentcomment{A new class of materials may emerge in exoplanets under different environment, and these new materials may not fit into the classical categories of planet-building materials: atmosphere, rock, metal, and water. Additionally, explore other meanings along this line and write paragraphs here. }
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+%\urgentcomment{Write a bullet list of major findings. \XWrevised}
+%\begin{itemize}
+%    \item Mg$_2$FeH$_6$ was synthesized using LHDACs at 19-45~{GPa} between 1622-3311~K. 
+%    \item Mg$_2$FeH$_6$ adopts a vacancy-ordered double-perovskite structure, leading to a bulk density comparable to that of a mixture containing ~25\% H$_2$O and 75\% MgSiO$_3$.
+%    \item Hydride formation (Mg$_2$FeH$_6$) can ingas substantial hydrogen, making solidified interiors of hydrogen-rich planets much denser than un-ingassed ones, consequently changing modeled compositions of hydrogen-rich sub-Neptunes significantly.
+%\end{itemize}
+
+Our high $P$--$T$ experiments show that Mg$_2$FeH$_6$ perovskite forms readily from Mg, Fe, and H$_2$ at 19--45~{GPa} and remains stable up to at least 1879~K, extending its known stability field to conditions relevant to sub-Neptune interiors. 
+The perovskite-type structure of Mg$_2$FeH$_6$ is less dense than bridgmanite. 
+When applied to planetary-scale mass-radius calculations, the incorporation of hydrogen as Mg$_2$FeH$_6$ lowers the required volatile envelope thickness by tens of percent compared with traditional gas dwarf models (rocky core with an H$_2$ envelope). 
+This implies that hydrogen ingassing promoted by chemical reaction at the envelope-core boundary of sub-Neptunes can store large amounts of hydrogen in solid hydrides of the core, producing planets with thinner atmospheres yet similar radii to water-rich sub-Neptunes. 
+These results highlight hydride formation as a key, previously unrecognized pathway for hydrogen retention and redistribution in low-mass exoplanets.
+
+It is important to mention, however, that we extrapolate the EoS of Mg$_2$FeH$_6$ perovskite beyond its confirmed stability.
+While this situation is similar to the case of silicate (bridgmanite and MgO), if Mg$_2$FeH$_6$ undergoes more phase transitions at higher pressures, the typical higher density found in higher pressure polymorphs would reduce the predicted radius of a mass-radius relation slightly.  
+Therefore, the present curves likely represent an upper bound on planetary radii for hydride-bearing interiors. 
+Even so, the central implication remains robust: reactions at the base of hydrogen envelopes can ingas hydrogen directly into the interior, forming new hydride phases and establishing a solid-state sink for hydrogen \cite{kim_stability_2023}. \sidecomment{this is not the robust conclusion from your study but from Taehyun's study.  Therefore it does not help.  I think the one you meantion is MgH2, which can be viewed as dissociation product of Mg2FeH6 into 2MgH2 + Fe + 2H2.  Even the case, the density does not go low enough to overlap with oxides.  Instead, it is the opposite.  Therefore this indicates that the first-order relationship we found here with oxide and silicate persists at higher pressure.}
+This chemical pathway challenges the traditional view that hydrogen in sub-Neptunes is confined to volatile envelopes and suggests that the deep interiors of these planets may host substantial, long-lived hydrogen reservoirs.\sidecomment{Again this ``pathways'' is not your new idea.  You need to stick to ``your'' new findings instead.  Rewrite.}
+
+%However, at still higher pressures, Mg$_2$FeH$_6$ may transform into denser phases or decompose into other compositions, like Fe, MgO, or FeH. Such transitions would flatten the slope of its mass-radius relation, narrowing the gap between hydride-rich and Earth-like-core models (2Brd + Fe). Therefore, the present curves likely represent an upper bound on planetary radii for hydride-bearing interiors. Even so, the central implication remains robust: reactions at the base of hydrogen envelopes can ingas hydrogen directly into the interior, forming new hydride phases and establishing a solid-state sink for hydrogen \cite{kim_stability_2023}. This chemical pathway challenges the traditional view that hydrogen in sub-Neptunes is confined to volatile envelopes and suggests that the deep interiors of these planets may host substantial, long-lived hydrogen reservoirs.
+
+Finally, our analysis assumes an idealized composition dominated by Mg$_2$FeH$_6$, whereas natural interiors are likely multiphase mixtures. 
+The thermal stability of Mg$_2$FeH$_6$ above 50~{GPa}, its possible oxidation by H$_2$O, and the kinetics of hydrogen exchange remain uncertain. 
+Future high-pressure experiments and ab initio \deleted{thermodynamic} calculations are needed to map the phase boundaries and evaluate the hydrogen storage capacity of Fe-Mg hydrides under sub-Neptune conditions.
+\begin{cbox}
+    You also need to discuss potential impact of Si in the hydride system.  You can mention Strobel study on SiH4.
+\end{cbox}
+
+% and motivate further experimental and theoretical studies of Fe-Mg-H phase equilibria and melting at higher pressures.
+
+\clearpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{references}
+\end{document}
