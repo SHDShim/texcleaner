@@ -18,7 +18,7 @@ from .wrapper import (
     generate_output_filename,
     detect_cleaning_module
 )
-from .version import __version__
+from version import __version__
 
 
 class TeXCleanerApp:

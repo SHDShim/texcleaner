@@ -7,7 +7,7 @@ Supports cleaning track changes from:
 - arXiv submission preparation
 """
 
-from .version import __version__
+from version import __version__
 from .wrapper import (
     clean_trackchanges,
     clean_changes,

@@ -30,4 +30,4 @@ texcleaner = "texcleaner.app:main"
 package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*"]}
 
 [tool.setuptools.dynamic]
-version = {attr = "texcleaner.version.__version__"}
+version = {attr = "version.__version__"}
