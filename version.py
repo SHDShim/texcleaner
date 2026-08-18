@@ -1,6 +1,8 @@
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 """
+0.5.0 Migrated the macOS interface to SwiftUI with configurable Track Changes
+      and arXiv cleaning options, output-location reporting, and a native app icon.
 0.4.0 Renamed project from TeXClean to TeXCleaner.
 0.3.0 Added auto-detection of trackchanges vs changes packages.
       Restructured GUI with separate tabs for Track Changes and arXiv cleaning.

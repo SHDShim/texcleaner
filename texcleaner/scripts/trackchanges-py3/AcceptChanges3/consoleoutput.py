@@ -40,6 +40,7 @@ class ConsoleControlledOutput:
 		self.interactive = options.interactive
 		self.processNotes = options.notes
 		self.processChanges = options.changes
+		self.rejectChanges = options.reject
 		self.document = []
 	
 	def addSegment(self, line, fromIndex, toIndex, type):
@@ -199,16 +200,22 @@ class ConsoleControlledOutput:
 					elif self.processChanges and (env == "addCommand"):
 						if self.interactive:
 							self.addInteraction(envBuffer)
+						elif self.rejectChanges:
+							self.removeAddedText(envBuffer)
 						else:
 							self.keepAddedText(envBuffer)
 					elif self.processChanges and (env == "removeCommand"):
 						if self.interactive:
 							self.removeInteraction(envBuffer)
+						elif self.rejectChanges:
+							self.keepRemovedText(envBuffer)
 						else:
 							self.removeRemovedText(envBuffer)
 					elif self.processChanges and (env == "changeSecondArg"):
 						if self.interactive:
 							self.changeInteraction(envBuffer)
+						elif self.rejectChanges:
+							self.keepOriginalText(envBuffer)
 						else:
 							self.keepNewText(envBuffer)
 
@@ -219,7 +226,6 @@ class ConsoleControlledOutput:
 		"""writes the entire self.document to self.outfile"""
 		for segment in self.document:
 			segment.output(self.outfile)
-
 
 
 

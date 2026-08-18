@@ -1,5 +1,5 @@
 """
-TeXCleaner - A GUI front-end for cleaning LaTeX track changes.
+TeXCleaner - Cleaning LaTeX track changes.
 
 Supports cleaning track changes from:
 - trackchanges.sty
@@ -12,13 +12,17 @@ from .wrapper import (
     clean_trackchanges,
     clean_changes,
     clean_arxiv,
-    generate_output_filename
+    generate_output_filename,
+    detect_cleaning_module
 )
+from .job_store import JobStore
 
 __all__ = [
     "clean_trackchanges",
     "clean_changes",
     "clean_arxiv",
     "generate_output_filename",
+    "detect_cleaning_module",
+    "JobStore",
     "__version__",
 ]

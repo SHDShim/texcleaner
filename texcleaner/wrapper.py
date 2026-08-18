@@ -29,7 +29,14 @@ def get_python_cmd():
     return sys.executable
 
 
-def clean_trackchanges(input_file, output_file, callback=None):
+def clean_trackchanges(
+    input_file,
+    output_file,
+    callback=None,
+    accept_changes=True,
+    remove_annotations=True,
+    overwrite=False,
+):
     """
     Clean LaTeX document using trackchanges.sty.
 
@@ -52,13 +59,25 @@ def clean_trackchanges(input_file, output_file, callback=None):
     if not os.path.exists(ACCEPTCHANGES_SCRIPT):
         return False, f"Script not found: {ACCEPTCHANGES_SCRIPT}"
 
+    output_path = Path(output_file)
+    if output_path.exists():
+        if not overwrite:
+            return False, f"Output already exists: {output_file}"
+        if output_path.is_dir():
+            return False, f"Output path is a directory: {output_file}"
+        output_path.unlink()
+
     cmd = [
         get_python_cmd(),
         str(ACCEPTCHANGES_SCRIPT),
-        "-c", "-n",
+        "-c",
         "--infile", str(input_file),
         "--outfile", str(output_file)
     ]
+    if not accept_changes:
+        cmd.append("--reject")
+    if remove_annotations:
+        cmd.append("--notes")
 
     if callback:
         callback(f"Running TrackChanges cleaner...\nCommand: {' '.join(cmd)}\n")
@@ -87,7 +106,14 @@ def clean_trackchanges(input_file, output_file, callback=None):
         return False, f"Error running TrackChanges cleaner: {str(e)}"
 
 
-def clean_changes(input_file, output_file, callback=None):
+def clean_changes(
+    input_file,
+    output_file,
+    callback=None,
+    accept_changes=True,
+    remove_annotations=True,
+    overwrite=False,
+):
     """
     Clean LaTeX document using changes.sty.
 
@@ -113,10 +139,22 @@ def clean_changes(input_file, output_file, callback=None):
     if input_file == output_file:
         return False, "Input and output files must be different"
 
+    output_path = Path(output_file)
+    if output_path.exists():
+        if not overwrite:
+            return False, f"Output already exists: {output_file}"
+        if output_path.is_dir():
+            return False, f"Output path is a directory: {output_file}"
+        output_path.unlink()
+
+    action_flags = "a" if accept_changes else "r"
+    if remove_annotations:
+        action_flags += "h"
+
     cmd = [
         get_python_cmd(),
         str(PYMERGECHANGES_SCRIPT),
-        "-a",
+        f"-{action_flags}",
         str(input_file),
         str(output_file)
     ]
@@ -148,7 +186,18 @@ def clean_changes(input_file, output_file, callback=None):
         return False, f"Error running Changes cleaner: {str(e)}"
 
 
-def clean_arxiv(folder_path, im_size=500, callback=None):
+def clean_arxiv(
+    folder_path,
+    im_size=500,
+    callback=None,
+    resize_images=True,
+    compress_pdf=False,
+    pdf_resolution=500,
+    keep_bib=False,
+    verbose=False,
+    output_suffix="-cleaned",
+    overwrite=False,
+):
     """
     Clean and organize LaTeX files for arXiv submission.
 
@@ -172,11 +221,31 @@ def clean_arxiv(folder_path, im_size=500, callback=None):
     if not arxiv_cleaner_cmd:
         return False, "arxiv_latex_cleaner not found. Please install it in the docflow environment."
 
-    cmd = [
-        arxiv_cleaner_cmd,
-        str(folder_path),
-        "--im_size", str(im_size)
-    ]
+    if not is_valid_output_suffix(output_suffix):
+        return False, "Output suffix must be non-empty and cannot contain path separators."
+
+    input_path = Path(folder_path)
+    default_output = input_path.with_name(f"{input_path.name}_arXiv")
+    cleaned_output = input_path.with_name(f"{input_path.name}{output_suffix}")
+
+    for existing_output in {default_output, cleaned_output}:
+        if existing_output.exists():
+            if not overwrite:
+                return False, f"Output already exists: {existing_output}"
+            if existing_output.is_dir():
+                shutil.rmtree(existing_output)
+            else:
+                existing_output.unlink()
+
+    cmd = [arxiv_cleaner_cmd, str(folder_path)]
+    if resize_images:
+        cmd.extend(["--resize_images", "--im_size", str(im_size)])
+    if compress_pdf:
+        cmd.extend(["--compress_pdf", "--pdf_im_resolution", str(pdf_resolution)])
+    if keep_bib:
+        cmd.append("--keep_bib")
+    if verbose:
+        cmd.append("--verbose")
 
     if callback:
         callback(f"Running arXiv cleaner...\nCommand: {' '.join(cmd)}\n")
@@ -196,14 +265,13 @@ def clean_arxiv(folder_path, im_size=500, callback=None):
                 callback(result.stderr)
 
         if result.returncode == 0:
-            arxiv_output = Path(folder_path).with_name(f"{Path(folder_path).name}_arXiv")
-            cleaned_output = Path(folder_path).with_name(f"{Path(folder_path).name}-cleaned")
-
-            if arxiv_output.exists():
-                shutil.move(str(arxiv_output), str(cleaned_output))
+            if default_output.exists() and default_output != cleaned_output:
+                shutil.move(str(default_output), str(cleaned_output))
+                return True, f"Successfully cleaned folder: {cleaned_output}"
+            elif cleaned_output.exists():
                 return True, f"Successfully cleaned folder: {cleaned_output}"
             else:
-                return True, f"Successfully cleaned folder: {folder_path}"
+                return False, "Cleaner finished but the expected output folder was not created."
 
         else:
             return False, f"Process failed with return code: {result.returncode}"
@@ -280,3 +348,8 @@ def generate_output_filename(input_path, suffix="-cleaned"):
     """
     path = Path(input_path)
     return str(path.parent / f"{path.stem}{suffix}{path.suffix}")
+
+
+def is_valid_output_suffix(suffix):
+    """Return whether a user-provided suffix stays within the input directory."""
+    return bool(suffix) and "/" not in suffix and "\\" not in suffix and "\0" not in suffix

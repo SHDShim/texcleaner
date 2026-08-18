@@ -60,6 +60,8 @@ def addOptions(optParser):
             help="process \\annote and \\note commands") 
 	newOptParser.add_option("-c", "--changes", action="store_true", dest="changes",
             help="process \\add, \\remove, and \\change commands")
+	newOptParser.add_option("-r", "--reject", action="store_true", dest="reject",
+			help="reject changes and keep the original text")
 	newOptParser.add_option("-i", "--interactive", action="store_true", dest="interactive",
 			help="interactive mode")
 	return newOptParser   

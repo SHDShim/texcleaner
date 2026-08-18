@@ -11,9 +11,12 @@ license = "GPL-3.0-or-later"
 authors = [
     {name = "Dan Shim"}
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
-    "arxiv-latex-cleaner"
+    "arxiv-latex-cleaner",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
 ]
 
 [project.optional-dependencies]
@@ -24,7 +27,7 @@ dev = [
 ]
 
 [project.scripts]
-texcleaner = "texcleaner.app:main"
+texcleaner = "texcleaner.__main__:main"
 
 [tool.setuptools]
 package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*"]}
