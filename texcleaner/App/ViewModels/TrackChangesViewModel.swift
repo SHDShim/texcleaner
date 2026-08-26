@@ -20,7 +20,7 @@ class TrackChangesViewModel: ObservableObject {
         !outputSuffix.isEmpty
             && !outputSuffix.contains("/")
             && !outputSuffix.contains("\\")
-            && !outputSuffix.contains("\0")
+            && outputSuffix.unicodeScalars.allSatisfy { !CharacterSet.controlCharacters.contains($0) }
     }
 
     var outputPath: String? {
@@ -48,10 +48,19 @@ class TrackChangesViewModel: ObservableObject {
         completedOutputPath = nil
         logs = []
 
-        client.detectModule(at: inputPath) { [weak self] detected in
+        client.detectModule(at: inputPath) { [weak self] result in
             guard let self = self else { return }
 
             DispatchQueue.main.async {
+                guard case .success(let detected) = result else {
+                    if case .failure(let error) = result {
+                        self.errorMessage = error.localizedDescription
+                    } else {
+                        self.errorMessage = "The backend could not be reached."
+                    }
+                    self.isProcessing = false
+                    return
+                }
                 let label = detected ?? "none"
                 self.logs.append("Detected module: \(label)\n")
 
@@ -78,11 +87,11 @@ class TrackChangesViewModel: ObservableObject {
                 removeAnnotations: removeAnnotations,
                 outputSuffix: outputSuffix,
                 overwrite: overwriteExisting
-            ) { [weak self] jobId in
+            ) { [weak self] result in
                 DispatchQueue.main.async {
-                    self?.handleStartedJob(jobId)
+                    self?.handleStartedJob(result)
                 }
-                if !jobId.isEmpty {
+                if case .success(let jobId) = result, !jobId.isEmpty {
                     self?.subscribeToJob(jobId: jobId)
                 }
             }
@@ -93,23 +102,27 @@ class TrackChangesViewModel: ObservableObject {
                 removeAnnotations: removeAnnotations,
                 outputSuffix: outputSuffix,
                 overwrite: overwriteExisting
-            ) { [weak self] jobId in
+            ) { [weak self] result in
                 DispatchQueue.main.async {
-                    self?.handleStartedJob(jobId)
+                    self?.handleStartedJob(result)
                 }
-                if !jobId.isEmpty {
+                if case .success(let jobId) = result, !jobId.isEmpty {
                     self?.subscribeToJob(jobId: jobId)
                 }
             }
         }
     }
 
-    private func handleStartedJob(_ jobId: String) {
-        if jobId.isEmpty {
+    private func handleStartedJob(_ result: Result<String, Error>) {
+        switch result {
+        case .success(let jobId) where !jobId.isEmpty:
+            logs.append("Job started: \(jobId)\n")
+        case .success:
             errorMessage = "The cleaning job could not be started."
             isProcessing = false
-        } else {
-            logs.append("Job started: \(jobId)\n")
+        case .failure(let error):
+            errorMessage = error.localizedDescription
+            isProcessing = false
         }
     }
 
@@ -118,7 +131,9 @@ class TrackChangesViewModel: ObservableObject {
 
         let wsTask = client.connectWebSocket(jobId: jobId) { [weak self] msg in
             DispatchQueue.main.async {
-                self?.logs = msg.logs
+                if !msg.logs.isEmpty || msg.status != nil {
+                    self?.logs = msg.logs
+                }
                 if let status = msg.status {
                     self?.logs.append("Status: \(status)\n")
                     if status == "error" {

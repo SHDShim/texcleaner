@@ -23,14 +23,20 @@ dependencies = [
 dev = [
     "build",
     "twine",
-    "pytest"
+    "pytest",
+    "httpx"
 ]
 
 [project.scripts]
 texcleaner = "texcleaner.__main__:main"
 
 [tool.setuptools]
-package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*"]}
+packages = ["texcleaner"]
+py-modules = ["version"]
+package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*.tex", "scripts/**/*.txt", "scripts/**/*.sh"]}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.setuptools.dynamic]
 version = {attr = "version.__version__"}

@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from .server import run_server
 from version import __version__
@@ -43,10 +44,21 @@ def main():
         help="Server log level (used with --server, default: info)",
     )
 
+    parser.add_argument(
+        "--auth-token",
+        default=os.environ.get("TEXCLEANER_AUTH_TOKEN"),
+        help="Bearer token for API clients (defaults to TEXCLEANER_AUTH_TOKEN)",
+    )
+
     args = parser.parse_args()
 
     if args.server:
-        run_server(port=args.port, host=args.host, log_level=args.log_level)
+        run_server(
+            port=args.port,
+            host=args.host,
+            log_level=args.log_level,
+            auth_token=args.auth_token,
+        )
     else:
         from .app import main as app_main
 

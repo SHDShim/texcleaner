@@ -23,7 +23,7 @@ class ArxivViewModel: ObservableObject {
         !outputSuffix.isEmpty
             && !outputSuffix.contains("/")
             && !outputSuffix.contains("\\")
-            && !outputSuffix.contains("\0")
+            && outputSuffix.unicodeScalars.allSatisfy { !CharacterSet.controlCharacters.contains($0) }
     }
 
     var outputPath: String? {
@@ -67,17 +67,21 @@ class ArxivViewModel: ObservableObject {
             verbose: verbose,
             outputSuffix: outputSuffix,
             overwrite: overwriteExisting
-        ) { [weak self] jobId in
+        ) { [weak self] result in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                if jobId.isEmpty {
-                    self.errorMessage = "The cleaning job could not be started."
+                guard case .success(let jobId) = result, !jobId.isEmpty else {
+                    if case .failure(let error) = result {
+                        self.errorMessage = error.localizedDescription
+                    } else {
+                        self.errorMessage = "The cleaning job could not be started."
+                    }
                     self.isProcessing = false
-                } else {
-                    self.logs.append("Job started: \(jobId)\n")
+                    return
                 }
+                self.logs.append("Job started: \(jobId)\n")
             }
-            if !jobId.isEmpty {
+            if case .success(let jobId) = result, !jobId.isEmpty {
                 self.subscribeToJob(jobId: jobId)
             }
         }
@@ -88,7 +92,9 @@ class ArxivViewModel: ObservableObject {
 
         let wsTask = client.connectWebSocket(jobId: jobId) { [weak self] msg in
             DispatchQueue.main.async {
-                self?.logs = msg.logs
+                if !msg.logs.isEmpty || msg.status != nil {
+                    self?.logs = msg.logs
+                }
                 if let status = msg.status {
                     self?.logs.append("Status: \(status)\n")
                     if status == "error" {

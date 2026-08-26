@@ -1,305 +1,210 @@
-#!/usr/bin/python
-"""
-    pymergechanges: Merge commits made with changes package into text
-    Copyright (C) 2018  Y. Cui
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-pymergechanges: Merge commits made with changes package into text
-
-Requires Python version 3; Tested on Python 3.6.6
-
-Supported commands: added, deleted, replaced, highlight
-Usage: python pyMergeChanges.py [-arh] <Input File> <Output File>
-<Output File> will be overwritten and must be different than <Input File>.
-Options:
-    -a: accept all added, deleted and replaced
-    -r: reject all added, deleted and replaced
-    -h: remove all highlights
-If no option is given, runs interactively.
-
-Created on Wed Dec  5 20:28:40 2018
-Revised on Tue Aug 27 17:51:58 2019
+#!/usr/bin/env python3
+# pyMergeChanges: merge commits made with the changes package.
+# Copyright (C) 2018 Y. Cui.
+# This program is free software under the GNU General Public License.
+# It is distributed without warranty; see the project LICENSE file.
 
 """
+Merge commits made with the changes.sty package into plain LaTeX text.
 
-import sys
-import re
+Usage: python pyMergeChanges.py [-arh] <input> <output>
+  -a  accept added, deleted, and replaced text
+  -r  reject added, deleted, and replaced text
+  -h  remove highlights and comments
+"""
+
 import codecs
+import re
+import sys
 
-def parse_param(parstr):
-    if all(p in parstr for p in ('a', 'r')):
-        print('You cannot accept and reject at the same time.')
-        sys.exit(1)
-    parout = ''
-    for par in parstr[1:]:
-        if par == 'a':
-            print('Accepting all added, deleted and replaced')
-            parout += 'a'
-        elif par == 'r':
-            print('Rejecting all added, deleted and replaced')
-            parout += 'r'
-        elif par == 'h':
-            print('Removing all highlights.')
-            parout += 'h'
-        else:
-            print('Unknown parameter: ' + par)
-            sys.exit(1)
-    if not parout:
-        parout = 'i'
-    return parout
 
-def ask1():
-    if PARAMS == 'i':
-        while True:
-            ans = input('[a]ccept or [r]eject or [k]eep or [b]reak ? ').lower()
-            if ans == 'a':
-                print('Accepted.')
-                break
-            elif ans == 'r':
-                print('Rejected.')
-                break
-            elif ans == 'k':
-                print('Kept.')
-                break
-            elif ans == 'b':
-                print('Alright.')
-                break
-    elif any(p == 'a' for p in PARAMS):
-        print('Accepted.')
-        ans = 'a'
-    elif any(p == 'r' for p in PARAMS):
-        print('Rejected.')
-        ans = 'r'
-    else:
-        ans = 'k'
-    return ans
+COMMAND_RE = re.compile(r"\\(added|deleted|replaced|highlight|comment)(?![A-Za-z@])")
 
-def ask2():
-    if PARAMS == 'i':
-        while True:
-            ans = input('[r]emove or [k]eep or [b]reak ? ').lower()
-            if ans == 'r':
-                print('Removed.')
-                break
-            elif ans == 'k':
-                print('Kept.')
-                break
-            elif ans == 'b':
-                print('Alright.')
-                break
-        return ans
-    elif any(p == 'h' for p in PARAMS):
-        print('Removed.')
-        ans = 'r'
-    else:
-        print('Kept.')
-        ans = 'k'
-    return ans
 
-def trim_space(text, pos):
-    if text[pos-1:pos+1] == '  ':
-        text = text[:pos] + text[pos+1:]
-    return text
+def _is_escaped(text, position):
+    """Return whether the character at position is preceded by an odd slash count."""
+    slashes = 0
+    position -= 1
+    while position >= 0 and text[position] == "\\":
+        slashes += 1
+        position -= 1
+    return slashes % 2 == 1
+
 
 def find_matching_brace(text, start):
-    if text[start] != '{':
+    """Find a TeX argument's closing brace, respecting escaped braces/comments."""
+    if start < 0 or start >= len(text) or text[start] != "{":
         return -1
-    count = 1
-    pos = start + 1
-    while pos < len(text) and count > 0:
-        if text[pos] == '{':
-            count += 1
-        elif text[pos] == '}':
-            count -= 1
-        pos += 1
-    if count == 0:
-        return pos - 1
+
+    depth = 1
+    position = start + 1
+    while position < len(text):
+        char = text[position]
+        if char == "%" and not _is_escaped(text, position):
+            newline = text.find("\n", position)
+            position = len(text) if newline == -1 else newline + 1
+            continue
+        if char in "{}" and not _is_escaped(text, position):
+            depth += 1 if char == "{" else -1
+            if depth == 0:
+                return position
+        position += 1
     return -1
 
-def get_arg_content(text, brace_start):
-    end = find_matching_brace(text, brace_start)
-    if end == -1:
-        return None, -1
-    return text[brace_start + 1:end], end
 
-RE_ADDED = re.compile(r'(\\added)(\[[^\]]*\])?\{')
-RE_DELETED = re.compile(r'(\\deleted)(\[[^\]]*\])?\{')
-RE_REPLACED = re.compile(r'(\\replaced)(\[[^\]]*\])?\{')
-RE_HIGHLIGHT = re.compile(r'(\\highlight)(\[[^\]]*\])?\{')
-RE_COMMENT = re.compile(r'(\\comment)(\[[^\]]*\])?\{')
+def _find_optional_end(text, start):
+    if start >= len(text) or text[start] != "[":
+        return start
+    position = start + 1
+    while position < len(text):
+        if text[position] == "]" and not _is_escaped(text, position):
+            return position + 1
+        position += 1
+    return -1
 
-if len(sys.argv) not in [3, 4]:
-    print(__doc__)
-    sys.exit(1)
 
-if len(sys.argv) == 3:
-    print('Running in interactive mode. ')
-    INPUTFILE, OUTPUTFILE = sys.argv[1:]
-    PARAMS = "i"
-if len(sys.argv) == 4:
-    PARAMLIST, INPUTFILE, OUTPUTFILE = sys.argv[1:]
-    PARAMS = parse_param(PARAMLIST)
+def _parse_command(text, match):
+    """Return (command, arguments, first_start, full_end) or None if malformed."""
+    position = match.end()
+    while position < len(text) and text[position].isspace():
+        position += 1
 
-if INPUTFILE == OUTPUTFILE:
-    print('Input File and Output File must be different.')
-    sys.exit(1)
+    optional_end = _find_optional_end(text, position)
+    if optional_end == -1:
+        return None
+    position = optional_end
+    while position < len(text) and text[position].isspace():
+        position += 1
 
-with codecs.open(INPUTFILE, mode='r', encoding='utf8') as fin:
-    content = fin.read()
+    first_start = position
+    first_end = find_matching_brace(text, first_start)
+    if first_end == -1:
+        return None
 
-FLAG_FAST_BREAK = False
-matchAdded = RE_ADDED.search(content)
-matchDeleted = RE_DELETED.search(content)
-matchReplaced = RE_REPLACED.search(content)
-matchHighlight = RE_HIGHLIGHT.search(content)
-matchComment = RE_COMMENT.search(content)
-has_commits = matchAdded or matchDeleted or matchReplaced or matchHighlight or matchComment
+    args = [(first_start, first_end)]
+    if match.group(1) == "replaced":
+        second_start = first_end + 1
+        while second_start < len(text) and text[second_start].isspace():
+            second_start += 1
+        second_end = find_matching_brace(text, second_start)
+        if second_end == -1:
+            return None
+        args.append((second_start, second_end))
+    return match.group(1), args, first_start, args[-1][1] + 1
 
-if not has_commits:
-    with codecs.open(OUTPUTFILE, mode='w', encoding='utf8') as fout:
-        fout.write(content)
-else:
-    while matchAdded:
-        if FLAG_FAST_BREAK:
-            break
-        print('\n** add commit ** \n' + matchAdded.group())
-        answer = ask1()
-        cmd_end = matchAdded.end(0)
-        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
-        if arg_content is None:
-            matchAdded = RE_ADDED.search(content, cmd_end + 1)
-            continue
-        if answer == 'a':
-            content = (content[:matchAdded.start(0)]
-                       + arg_content + content[brace_end + 1:])
-            content = trim_space(content, matchAdded.start(0) + len(arg_content))
-            content = trim_space(content, matchAdded.start(0))
-            matchAdded = RE_ADDED.search(content, matchAdded.start(0) + len(arg_content))
-        elif answer == 'r':
-            content = (content[:matchAdded.start(0)] + content[brace_end + 1:])
-            content = trim_space(content, matchAdded.start(0))
-            matchAdded = RE_ADDED.search(content, matchAdded.start(0))
-        elif answer == 'k':
-            matchAdded = RE_ADDED.search(content, brace_end + 1)
-        elif answer == 'b':
-            FLAG_FAST_BREAK = True
-            break
 
-    matchDeleted = RE_DELETED.search(content)
-    while matchDeleted:
-        if FLAG_FAST_BREAK:
-            break
-        print('\n** delete commit ** \n' + matchDeleted.group())
-        answer = ask1()
-        cmd_end = matchDeleted.end(0)
-        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
-        if arg_content is None:
-            matchDeleted = RE_DELETED.search(content, cmd_end + 1)
-            continue
-        if answer == 'a':
-            content = (content[:matchDeleted.start(0)] + content[brace_end + 1:])
-            content = trim_space(content, matchDeleted.start(0))
-            matchDeleted = RE_DELETED.search(content, matchDeleted.start(0))
-        elif answer == 'r':
-            content = (content[:matchDeleted.start(0)] + arg_content
-                       + content[brace_end + 1:])
-            content = trim_space(content, matchDeleted.start(0) + len(arg_content))
-            content = trim_space(content, matchDeleted.start(0))
-            matchDeleted = RE_DELETED.search(content, matchDeleted.start(0) + len(arg_content))
-        elif answer == 'k':
-            matchDeleted = RE_DELETED.search(content, brace_end + 1)
-        elif answer == 'b':
-            FLAG_FAST_BREAK = True
-            break
+def _ask_commit():
+    while True:
+        answer = input("[a]ccept or [r]eject or [k]eep or [b]reak ? ").lower()
+        if answer in {"a", "r", "k", "b"}:
+            return answer
 
-    matchReplaced = RE_REPLACED.search(content)
-    while matchReplaced:
-        if FLAG_FAST_BREAK:
-            break
-        print('\n** replace commit ** \n' + matchReplaced.group())
-        answer = ask1()
-        cmd_end = matchReplaced.end(0)
-        arg1_content, brace_end1 = get_arg_content(content, cmd_end - 1)
-        if arg1_content is None:
-            matchReplaced = RE_REPLACED.search(content, cmd_end + 1)
-            continue
-        arg2_content, brace_end2 = get_arg_content(content, brace_end1 + 1)
-        if arg2_content is None:
-            matchReplaced = RE_REPLACED.search(content, brace_end1 + 1)
-            continue
-        if answer == 'a':
-            content = (content[:matchReplaced.start(0)]
-                       + arg1_content + content[brace_end2 + 1:])
-            content = trim_space(content, matchReplaced.start(0) + len(arg1_content))
-            content = trim_space(content, matchReplaced.start(0))
-            matchReplaced = RE_REPLACED.search(content, matchReplaced.start(0) + len(arg1_content))
-        elif answer == 'r':
-            content = (content[:matchReplaced.start(0)]
-                       + arg2_content + content[brace_end2 + 1:])
-            content = trim_space(content, matchReplaced.start(0) + len(arg2_content))
-            content = trim_space(content, matchReplaced.start(0))
-            matchReplaced = RE_REPLACED.search(content, matchReplaced.start(0) + len(arg2_content))
-        elif answer == 'k':
-            matchReplaced = RE_REPLACED.search(content, brace_end2 + 1)
-        elif answer == 'b':
-            FLAG_FAST_BREAK = True
-            break
 
-    matchHighlight = RE_HIGHLIGHT.search(content)
-    while matchHighlight:
-        if FLAG_FAST_BREAK:
-            break
-        print('\n** highlight commit ** \n' + matchHighlight.group())
-        answer = ask2()
-        cmd_end = matchHighlight.end(0)
-        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
-        if arg_content is None:
-            matchHighlight = RE_HIGHLIGHT.search(content, cmd_end + 1)
-            continue
-        if answer == 'r':
-            content = (content[:matchHighlight.start(0)]
-                       + arg_content + content[brace_end + 1:])
-            content = trim_space(content, matchHighlight.start(0) + len(arg_content))
-            content = trim_space(content, matchHighlight.start(0))
-            matchHighlight = RE_HIGHLIGHT.search(content, matchHighlight.start(0) + len(arg_content))
-        elif answer == 'k':
-            matchHighlight = RE_HIGHLIGHT.search(content, brace_end + 1)
-        elif answer == 'b':
-            FLAG_FAST_BREAK = True
-            break
+def _ask_annotation():
+    while True:
+        answer = input("[r]emove or [k]eep or [b]reak ? ").lower()
+        if answer in {"r", "k", "b"}:
+            return answer
 
-    matchComment = RE_COMMENT.search(content)
-    while matchComment:
-        if FLAG_FAST_BREAK:
-            break
-        print('\n** comment commit ** \n' + matchComment.group())
-        answer = ask2()
-        cmd_end = matchComment.end(0)
-        arg_content, brace_end = get_arg_content(content, cmd_end - 1)
-        if arg_content is None:
-            matchComment = RE_COMMENT.search(content, cmd_end + 1)
-            continue
-        if answer == 'r':
-            content = content[:matchComment.start(0)] + content[brace_end + 1:]
-            content = trim_space(content, matchComment.start(0))
-            matchComment = RE_COMMENT.search(content, matchComment.start(0))
-        elif answer == 'k':
-            matchComment = RE_COMMENT.search(content, brace_end + 1)
-        elif answer == 'b':
-            FLAG_FAST_BREAK = True
-            break
 
-    with codecs.open(OUTPUTFILE, mode='w', encoding='utf8') as fout:
-        fout.write(content)
+def clean_content(content, params):
+    """Recursively clean changes commands while preserving ordinary LaTeX."""
+    interactive = params == "i"
+    accept = "a" in params
+    reject = "r" in params
+    remove_annotations = "h" in params
+
+    def clean(text):
+        result = []
+        position = 0
+        while position < len(text):
+            if text[position] == "%" and not _is_escaped(text, position):
+                newline = text.find("\n", position)
+                end = len(text) if newline == -1 else newline + 1
+                result.append(text[position:end])
+                position = end
+                continue
+
+            match = COMMAND_RE.match(text, position) if text[position] == "\\" else None
+            if match is None:
+                result.append(text[position])
+                position += 1
+                continue
+
+            parsed = _parse_command(text, match)
+            if parsed is None:
+                result.append(match.group(0))
+                position = match.end()
+                continue
+
+            command, args, first_start, end = parsed
+            argument = [clean(text[start + 1:finish]) for start, finish in args]
+
+            if command in {"added", "deleted", "replaced"}:
+                answer = _ask_commit() if interactive else ("a" if accept else "r" if reject else "k")
+                if answer == "b":
+                    result.append(text[position:end])
+                elif command == "added":
+                    result.append(argument[0] if answer == "a" else "" if answer == "r" else text[position:end])
+                elif command == "deleted":
+                    result.append("" if answer == "a" else argument[0] if answer == "r" else text[position:end])
+                else:
+                    result.append(argument[0] if answer == "a" else argument[1] if answer == "r" else text[position:end])
+            else:
+                answer = _ask_annotation() if interactive else ("r" if remove_annotations else "k")
+                if answer == "r":
+                    result.append(argument[0] if command == "highlight" else "")
+                else:
+                    result.append(text[position:first_start + 1] + argument[0] + "}")
+
+            position = end
+        return "".join(result)
+
+    return clean(content)
+
+
+def parse_param(parameter_string):
+    if len(parameter_string) < 2 or parameter_string[0] != "-":
+        raise ValueError("Options must start with '-'.")
+    params = parameter_string[1:]
+    if "a" in params and "r" in params:
+        raise ValueError("You cannot accept and reject at the same time.")
+    unknown = set(params) - {"a", "r", "h"}
+    if unknown:
+        raise ValueError(f"Unknown parameter: {sorted(unknown)[0]}")
+    return params or "i"
+
+
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if len(argv) == 2:
+        params, input_file, output_file = "i", argv[0], argv[1]
+    elif len(argv) == 3:
+        try:
+            params = parse_param(argv[0])
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 1
+        input_file, output_file = argv[1:]
+    else:
+        print(__doc__)
+        return 1
+
+    if input_file == output_file:
+        print("Input File and Output File must be different.", file=sys.stderr)
+        return 1
+
+    try:
+        with codecs.open(input_file, mode="r", encoding="utf-8") as source:
+            content = source.read()
+        cleaned = clean_content(content, params)
+        with codecs.open(output_file, mode="w", encoding="utf-8") as destination:
+            destination.write(cleaned)
+    except (OSError, UnicodeError) as error:
+        print(f"Unable to clean file: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

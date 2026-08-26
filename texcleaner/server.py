@@ -1,49 +1,56 @@
-"""
-server.py - FastAPI server backend for TeXCleaner.
-
-Exposes REST endpoints for cleaning operations and WebSocket for real-time
-log streaming. The SwiftUI frontend communicates with this server.
-"""
+"""Authenticated FastAPI backend for TeXCleaner cleaning jobs."""
 
 import asyncio
-import threading
 import os
-from datetime import datetime, timezone
+import secrets
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Literal
 
-from fastapi import FastAPI, WebSocket, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket
+from pydantic import BaseModel, Field
 
 from version import __version__
-from .job_store import Job, JobStore, JobStatus
+from .job_store import JobCapacityError, JobStatus, JobStore
 from .wrapper import (
-    clean_trackchanges,
-    clean_changes,
     clean_arxiv,
+    clean_changes,
+    clean_trackchanges,
     detect_cleaning_module,
     generate_output_filename,
+    is_valid_output_suffix,
 )
 
-app = FastAPI(
-    title="TeXCleaner API",
-    version=__version__,
-)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+_auth_token = os.environ.get("TEXCLEANER_AUTH_TOKEN") or secrets.token_urlsafe(32)
 
+
+def configure_auth_token(token: str):
+    """Configure the bearer token used by HTTP and WebSocket clients."""
+    if not token:
+        raise ValueError("The API authentication token cannot be empty")
+    global _auth_token
+    _auth_token = token
+
+
+def _is_authorized(authorization: str | None) -> bool:
+    expected = f"Bearer {_auth_token}"
+    return authorization is not None and secrets.compare_digest(authorization, expected)
+
+
+def require_auth(authorization: str | None = Header(default=None)):
+    if not _is_authorized(authorization):
+        raise HTTPException(status_code=401, detail="Missing or invalid bearer token")
+
+
+app = FastAPI(title="TeXCleaner API", version=__version__)
 job_store = JobStore()
-
-active_subscribers: dict[str, list[WebSocket]] = {}
+job_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="texcleaner-job")
 
 
 class TrackChangesRequest(BaseModel):
     input_path: str
-    keep_version: str = "new"
+    keep_version: Literal["new", "old"] = "new"
     remove_annotations: bool = True
     output_suffix: str = "-cleaned"
     overwrite: bool = False
@@ -52,9 +59,9 @@ class TrackChangesRequest(BaseModel):
 class ArxivRequest(BaseModel):
     folder_path: str
     resize_images: bool = True
-    image_size: int = 500
+    image_size: int = Field(default=500, ge=1, le=10000)
     compress_pdf: bool = False
-    pdf_resolution: int = 500
+    pdf_resolution: int = Field(default=500, ge=1, le=2400)
     keep_bib: bool = False
     verbose: bool = False
     output_suffix: str = "-cleaned"
@@ -76,35 +83,54 @@ class JobDetail(BaseModel):
     finished_at: str | None = None
 
 
-@app.get("/")
+def _validate_output_suffix(suffix: str):
+    if not is_valid_output_suffix(suffix):
+        raise HTTPException(
+            status_code=422,
+            detail="Output suffix must be non-empty and contain no separators or control characters",
+        )
+
+
+def _create_job():
+    try:
+        return job_store.create_job()
+    except JobCapacityError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
+@app.get("/", dependencies=[Depends(require_auth)])
 def root():
     return {"name": "TeXCleaner API", "version": __version__}
 
 
-@app.get("/detect")
+@app.get("/detect", dependencies=[Depends(require_auth)])
 def detect_module(input_path: str = Query(...)):
-    detected = detect_cleaning_module(input_path)
-    return {"input_path": input_path, "detected": detected}
+    path = Path(input_path).expanduser()
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail=f"Input file not found: {input_path}")
+    detected = detect_cleaning_module(path)
+    return {"input_path": str(path), "detected": detected}
 
 
-@app.get("/jobs/{job_id}")
+@app.get("/jobs/{job_id}", dependencies=[Depends(require_auth)])
 def get_job_detail(job_id: str):
     job = job_store.get_job(job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+    snapshot = job.snapshot()
     return JobDetail(
-        job_id=job.job_id,
-        status=job.status.value,
-        logs=job.logs,
-        result=job.result,
-        output_path=job.output_path,
-        created_at=job.created_at,
-        finished_at=job.finished_at,
+        job_id=snapshot["job_id"],
+        status=snapshot["status"].value,
+        logs=snapshot["logs"],
+        result=snapshot["result"],
+        output_path=snapshot["output_path"],
+        created_at=snapshot["created_at"],
+        finished_at=snapshot["finished_at"],
     )
 
 
 def _run_job(job, target_func, *args, **kwargs):
-    job.status = JobStatus.RUNNING
+    job.mark_running()
     job.append_log(f"Job {job.job_id} started.\n")
 
     def callback(message: str):
@@ -112,180 +138,139 @@ def _run_job(job, target_func, *args, **kwargs):
 
     try:
         success, message = target_func(callback=callback, *args, **kwargs)
-        job.finished_at = datetime.now(timezone.utc).isoformat()
-
         if success:
-            job.status = JobStatus.SUCCESS
-            job.result = message
             job.append_log(f"SUCCESS: {message}\n")
+            job.finish(JobStatus.SUCCESS, message)
         else:
-            job.status = JobStatus.ERROR
-            job.result = message
             job.append_log(f"FAILED: {message}\n")
-
-    except Exception as e:
-        job.finished_at = datetime.now(timezone.utc).isoformat()
-        job.status = JobStatus.ERROR
-        error_msg = f"Unexpected error: {e}"
-        job.result = error_msg
-        job.append_log(f"ERROR: {error_msg}\n")
+            job.finish(JobStatus.ERROR, message)
+    except Exception as error:
+        error_message = f"Unexpected error: {error}"
+        job.append_log(f"ERROR: {error_message}\n")
+        job.finish(JobStatus.ERROR, error_message)
 
 
-@app.post("/clean/trackchanges")
+@app.post("/clean/trackchanges", dependencies=[Depends(require_auth)])
 def start_trackchanges(request: TrackChangesRequest):
-    job = job_store.create_job()
-    input_path = request.input_path
+    input_path = Path(request.input_path).expanduser()
+    if not input_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Input file not found: {request.input_path}")
+    _validate_output_suffix(request.output_suffix)
 
-    if not os.path.isfile(input_path):
-        job.status = JobStatus.ERROR
-        job.result = f"Input file not found: {input_path}"
-        job.append_log(job.result + "\n")
-        return JobResponse(job_id=job.job_id, status=job.status.value)
-
-    if request.keep_version not in {"new", "old"}:
-        raise HTTPException(status_code=422, detail="keep_version must be 'new' or 'old'")
-    if not _valid_output_suffix(request.output_suffix):
-        raise HTTPException(status_code=422, detail="Invalid output suffix")
-
-    output_path = generate_output_filename(input_path, request.output_suffix)
-    job.output_path = output_path
-
-    thread = threading.Thread(
-        target=_run_job,
-        args=(job, clean_trackchanges, input_path, output_path),
-        kwargs={
-            "accept_changes": request.keep_version == "new",
-            "remove_annotations": request.remove_annotations,
-            "overwrite": request.overwrite,
-        },
-        daemon=True,
+    output_path = generate_output_filename(input_path.resolve(), request.output_suffix)
+    job = _create_job()
+    job.set_output_path(output_path)
+    job_executor.submit(
+        _run_job,
+        job,
+        clean_trackchanges,
+        str(input_path.resolve()),
+        output_path,
+        accept_changes=request.keep_version == "new",
+        remove_annotations=request.remove_annotations,
+        overwrite=request.overwrite,
     )
-    thread.start()
-    return JobResponse(job_id=job.job_id, status=job.status.value)
+    return JobResponse(job_id=job.job_id, status=job.snapshot()["status"].value)
 
 
-@app.post("/clean/changes")
+@app.post("/clean/changes", dependencies=[Depends(require_auth)])
 def start_changes(request: TrackChangesRequest):
-    job = job_store.create_job()
-    input_path = request.input_path
+    input_path = Path(request.input_path).expanduser()
+    if not input_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Input file not found: {request.input_path}")
+    _validate_output_suffix(request.output_suffix)
 
-    if not os.path.isfile(input_path):
-        job.status = JobStatus.ERROR
-        job.result = f"Input file not found: {input_path}"
-        job.append_log(job.result + "\n")
-        return JobResponse(job_id=job.job_id, status=job.status.value)
-
-    if request.keep_version not in {"new", "old"}:
-        raise HTTPException(status_code=422, detail="keep_version must be 'new' or 'old'")
-    if not _valid_output_suffix(request.output_suffix):
-        raise HTTPException(status_code=422, detail="Invalid output suffix")
-
-    output_path = generate_output_filename(input_path, request.output_suffix)
-    job.output_path = output_path
-
-    thread = threading.Thread(
-        target=_run_job,
-        args=(job, clean_changes, input_path, output_path),
-        kwargs={
-            "accept_changes": request.keep_version == "new",
-            "remove_annotations": request.remove_annotations,
-            "overwrite": request.overwrite,
-        },
-        daemon=True,
+    output_path = generate_output_filename(input_path.resolve(), request.output_suffix)
+    job = _create_job()
+    job.set_output_path(output_path)
+    job_executor.submit(
+        _run_job,
+        job,
+        clean_changes,
+        str(input_path.resolve()),
+        output_path,
+        accept_changes=request.keep_version == "new",
+        remove_annotations=request.remove_annotations,
+        overwrite=request.overwrite,
     )
-    thread.start()
-    return JobResponse(job_id=job.job_id, status=job.status.value)
+    return JobResponse(job_id=job.job_id, status=job.snapshot()["status"].value)
 
 
-@app.post("/clean/arxiv")
+@app.post("/clean/arxiv", dependencies=[Depends(require_auth)])
 def start_arxiv(request: ArxivRequest):
-    job = job_store.create_job()
-    folder_path = request.folder_path
+    folder_path = Path(request.folder_path).expanduser().resolve()
+    if not folder_path.is_dir():
+        raise HTTPException(status_code=404, detail=f"Folder not found: {request.folder_path}")
+    if folder_path.parent == folder_path or not folder_path.name:
+        raise HTTPException(status_code=422, detail="The filesystem root is not a valid project folder")
+    _validate_output_suffix(request.output_suffix)
 
-    if not os.path.isdir(folder_path):
-        job.status = JobStatus.ERROR
-        job.result = f"Folder not found: {folder_path}"
-        job.append_log(job.result + "\n")
-        return JobResponse(job_id=job.job_id, status=job.status.value)
-
-    if not 1 <= request.image_size <= 10000:
-        raise HTTPException(status_code=422, detail="image_size must be between 1 and 10000")
-    if not 1 <= request.pdf_resolution <= 2400:
-        raise HTTPException(status_code=422, detail="pdf_resolution must be between 1 and 2400")
-    if not _valid_output_suffix(request.output_suffix):
-        raise HTTPException(status_code=422, detail="Invalid output suffix")
-
-    normalized_folder_path = os.path.normpath(folder_path)
-    job.output_path = os.path.join(
-        os.path.dirname(normalized_folder_path),
-        os.path.basename(normalized_folder_path) + request.output_suffix,
+    output_path = str(folder_path.with_name(folder_path.name + request.output_suffix))
+    job = _create_job()
+    job.set_output_path(output_path)
+    job_executor.submit(
+        _run_job,
+        job,
+        clean_arxiv,
+        str(folder_path),
+        resize_images=request.resize_images,
+        im_size=request.image_size,
+        compress_pdf=request.compress_pdf,
+        pdf_resolution=request.pdf_resolution,
+        keep_bib=request.keep_bib,
+        verbose=request.verbose,
+        output_suffix=request.output_suffix,
+        overwrite=request.overwrite,
     )
-
-    thread = threading.Thread(
-        target=_run_job,
-        args=(job, clean_arxiv, folder_path),
-        kwargs={
-            "resize_images": request.resize_images,
-            "im_size": request.image_size,
-            "compress_pdf": request.compress_pdf,
-            "pdf_resolution": request.pdf_resolution,
-            "keep_bib": request.keep_bib,
-            "verbose": request.verbose,
-            "output_suffix": request.output_suffix,
-            "overwrite": request.overwrite,
-        },
-        daemon=True,
-    )
-    thread.start()
-    return JobResponse(job_id=job.job_id, status=job.status.value)
+    return JobResponse(job_id=job.job_id, status=job.snapshot()["status"].value)
 
 
 @app.websocket("/ws/logs/{job_id}")
 async def websocket_logs(websocket: WebSocket, job_id: str):
-    await websocket.accept()
-    if job_id not in active_subscribers:
-        active_subscribers[job_id] = []
-    active_subscribers[job_id].append(websocket)
+    if not _is_authorized(websocket.headers.get("authorization")):
+        await websocket.close(code=4401, reason="Unauthorized")
+        return
 
+    job = job_store.get_job(job_id)
+    if job is None:
+        await websocket.close(code=4404, reason="Job not found")
+        return
+
+    await websocket.accept()
     try:
         while True:
-            await asyncio.sleep(0.2)
-            job = job_store.get_job(job_id)
-            if job is None:
-                continue
-
-            msg = {"logs_updated": len(job.logs)}
-
-            if job.status in (JobStatus.SUCCESS, JobStatus.ERROR):
-                msg["status"] = job.status.value
-                msg["result"] = job.result
-                msg["output_path"] = job.output_path
-                msg["logs"] = job.logs
-                await websocket.send_json(msg)
+            snapshot = job.snapshot()
+            message = {
+                "logs_updated": len(snapshot["logs"]),
+                "logs": snapshot["logs"],
+            }
+            if snapshot["status"] in (JobStatus.SUCCESS, JobStatus.ERROR):
+                message.update(
+                    status=snapshot["status"].value,
+                    result=snapshot["result"],
+                    output_path=snapshot["output_path"],
+                )
+                await websocket.send_json(message)
                 break
 
-            await websocket.send_json(msg)
-
+            await websocket.send_json(message)
+            await asyncio.sleep(0.2)
     except Exception:
-        pass
-    finally:
-        if websocket in active_subscribers.get(job_id, []):
-            active_subscribers[job_id].remove(websocket)
+        # Disconnects are expected and do not affect the underlying cleaning job.
+        return
 
 
 def run_server(
     port: int = 8765,
     host: str = "127.0.0.1",
     log_level: str = "info",
+    auth_token: str | None = None,
 ):
     import uvicorn
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        log_level=log_level,
-    )
 
+    if auth_token:
+        configure_auth_token(auth_token)
+    elif "TEXCLEANER_AUTH_TOKEN" not in os.environ:
+        print(f"TeXCleaner API bearer token: {_auth_token}", flush=True)
 
-def _valid_output_suffix(suffix: str) -> bool:
-    return bool(suffix) and "/" not in suffix and "\\" not in suffix and "\0" not in suffix
+    uvicorn.run(app, host=host, port=port, log_level=log_level)

@@ -34,8 +34,10 @@ pip install -e .
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
 - `arxiv-latex-cleaner` (installed automatically with pip)
+- Tkinter for the legacy Python GUI, or macOS 13+ and a `docflow` conda
+  environment for the native SwiftUI application
 
 ## Usage
 
@@ -62,10 +64,22 @@ python -m texcleaner.app
 
 4. Click **Clean** to process the file
 
+### API mode
+
+The backend API requires a bearer token. Pass one explicitly with
+`--auth-token` or set `TEXCLEANER_AUTH_TOKEN`; do not expose the server on a
+network interface without a protected token.
+
+```bash
+texcleaner --server --auth-token "change-me"
+```
+
 ## Output
 
-- **TrackChanges/Changes**: Creates a new file with `_no_track` or `_cleaned` suffix
-- **arXiv**: Creates a new folder with `_arXiv` suffix
+- **TrackChanges/Changes**: Creates a new file with the selected suffix
+  (default: `-cleaned`)
+- **arXiv**: Creates a new folder with the selected suffix (default:
+  `-cleaned`)
 
 ## License
 

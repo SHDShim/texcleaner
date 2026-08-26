@@ -1,8 +1,10 @@
 import Foundation
+import Security
 
 @MainActor
 final class ServerManager: ObservableObject {
     static let shared = ServerManager()
+    static let authTokenDefaultsKey = "TeXCleaner.APIAuthToken"
 
     @Published private(set) var isRunning = false
     @Published private(set) var launchError: String?
@@ -30,10 +32,12 @@ final class ServerManager: ObservableObject {
         }
 
         let server = Process()
+        let authToken = Self.makeAuthToken()
         server.executableURL = condaURL
         server.arguments = [
             "run", "--no-capture-output", "-n", "docflow",
             "python", "-m", "texcleaner", "--server", "--port", "8765",
+            "--auth-token", authToken,
         ]
         server.currentDirectoryURL = backendURL
 
@@ -68,6 +72,7 @@ final class ServerManager: ObservableObject {
 
         process = server
         self.loggingPipe = loggingPipe
+        UserDefaults.standard.set(authToken, forKey: Self.authTokenDefaultsKey)
         isRunning = true
         launchError = nil
     }
@@ -80,7 +85,14 @@ final class ServerManager: ObservableObject {
         self.process = nil
         loggingPipe?.fileHandleForReading.readabilityHandler = nil
         loggingPipe = nil
+        UserDefaults.standard.removeObject(forKey: Self.authTokenDefaultsKey)
         isRunning = false
+    }
+
+    private static func makeAuthToken() -> String {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        return Data(bytes).base64EncodedString()
     }
 
     private static func condaExecutableURL() -> URL? {

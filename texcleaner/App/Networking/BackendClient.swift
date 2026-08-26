@@ -1,5 +1,20 @@
 import Foundation
 
+enum BackendClientError: LocalizedError {
+    case unavailable(String)
+    case invalidResponse
+    case server(statusCode: Int, detail: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .unavailable(let message), .server(_, let message):
+            return message
+        case .invalidResponse:
+            return "The TeXCleaner backend returned an invalid response."
+        }
+    }
+}
+
 class BackendClient: ObservableObject {
     static let shared = BackendClient()
 
@@ -12,24 +27,32 @@ class BackendClient: ObservableObject {
         session = URLSession(configuration: config)
     }
 
-    func detectModule(at inputPath: String, completion: @escaping (String?) -> Void) {
+    func detectModule(at inputPath: String, completion: @escaping (Result<String?, Error>) -> Void) {
         var components = URLComponents(url: serverURL.appendingPathComponent("/detect"), resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "input_path", value: inputPath)]
 
-        let request = URLRequest(url: components.url!)
-        let task = session.dataTask(with: request) { data, _, error in
+        var request = URLRequest(url: components.url!)
+        addAuthorization(to: &request)
+        let task = session.dataTask(with: request) { [weak self] data, response, error in
             if let error = error {
                 print("Detect failed: \(error)")
-                completion(nil)
+                completion(.failure(BackendClientError.unavailable(error.localizedDescription)))
                 return
             }
-            guard let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let detected = json["detected"] as? String else {
-                completion(nil)
+            guard let data = data else {
+                completion(.failure(BackendClientError.invalidResponse))
                 return
             }
-            completion(detected)
+            guard let self else {
+                completion(.failure(BackendClientError.unavailable("The backend client is unavailable.")))
+                return
+            }
+            do {
+                let json = try self.decodeJSON(data: data, response: response as? HTTPURLResponse)
+                completion(.success(json["detected"] as? String))
+            } catch {
+                completion(.failure(error))
+            }
         }
         task.resume()
     }
@@ -40,7 +63,7 @@ class BackendClient: ObservableObject {
         removeAnnotations: Bool,
         outputSuffix: String,
         overwrite: Bool,
-        completion: @escaping (String) -> Void
+        completion: @escaping (Result<String, Error>) -> Void
     ) {
         let body: [String: Any] = [
             "input_path": inputPath,
@@ -58,7 +81,7 @@ class BackendClient: ObservableObject {
         removeAnnotations: Bool,
         outputSuffix: String,
         overwrite: Bool,
-        completion: @escaping (String) -> Void
+        completion: @escaping (Result<String, Error>) -> Void
     ) {
         let body: [String: Any] = [
             "input_path": inputPath,
@@ -80,7 +103,7 @@ class BackendClient: ObservableObject {
         verbose: Bool,
         outputSuffix: String,
         overwrite: Bool,
-        completion: @escaping (String) -> Void
+        completion: @escaping (Result<String, Error>) -> Void
     ) {
         let body: [String: Any] = [
             "folder_path": folderPath,
@@ -97,7 +120,8 @@ class BackendClient: ObservableObject {
     }
 
     func getJobDetail(jobId: String, completion: @escaping (JobDetail?) -> Void) {
-        let request = URLRequest(url: serverURL.appendingPathComponent("/jobs/\(jobId)"))
+        var request = URLRequest(url: serverURL.appendingPathComponent("/jobs/\(jobId)"))
+        addAuthorization(to: &request)
         let task = session.dataTask(with: request) { data, _, error in
             if let error = error {
                 print("Job detail failed: \(error)")
@@ -128,7 +152,9 @@ class BackendClient: ObservableObject {
         var comps = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         comps.scheme = comps.scheme == "http" ? "ws" : "wss"
         url = comps.url ?? serverURL
-        let task = session.webSocketTask(with: url)
+        var request = URLRequest(url: url)
+        addAuthorization(to: &request)
+        let task = session.webSocketTask(with: request)
 
         task.resume()
 
@@ -164,8 +190,14 @@ class BackendClient: ObservableObject {
                         break
                     }
                     receive()
-                case .failure:
-                    break
+                case .failure(let error):
+                    onMessage(WebSocketMessage(
+                        logsUpdated: 0,
+                        status: "error",
+                        result: "WebSocket connection failed: \(error.localizedDescription)",
+                        outputPath: nil,
+                        logs: []
+                    ))
                 }
             }
         }
@@ -173,27 +205,53 @@ class BackendClient: ObservableObject {
         return task
     }
 
-    private func performClean(_ endpoint: String, body: [String: Any], completion: @escaping (String) -> Void) {
+    private func performClean(_ endpoint: String, body: [String: Any], completion: @escaping (Result<String, Error>) -> Void) {
         var request = URLRequest(url: serverURL.appendingPathComponent("/clean/\(endpoint)"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        addAuthorization(to: &request)
 
-        let task = session.dataTask(with: request) { data, _, error in
+        let task = session.dataTask(with: request) { [weak self] data, response, error in
             if let error = error {
                 print("Clean failed: \(error)")
-                completion("")
+                completion(.failure(BackendClientError.unavailable(error.localizedDescription)))
                 return
             }
-            guard let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let jobId = json["job_id"] as? String else {
-                completion("")
+            guard let self,
+                  let data else {
+                completion(.failure(BackendClientError.invalidResponse))
                 return
             }
-            completion(jobId)
+            do {
+                let json = try self.decodeJSON(data: data, response: response as? HTTPURLResponse)
+                guard let jobId = json["job_id"] as? String else {
+                    throw BackendClientError.invalidResponse
+                }
+                completion(.success(jobId))
+            } catch {
+                completion(.failure(error))
+            }
         }
         task.resume()
+    }
+
+    private func addAuthorization(to request: inout URLRequest) {
+        if let token = UserDefaults.standard.string(forKey: ServerManager.authTokenDefaultsKey) {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+    }
+
+    private func decodeJSON(data: Data, response: HTTPURLResponse?) throws -> [String: Any] {
+        if let response, !(200..<300).contains(response.statusCode) {
+            let detail = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["detail"] as? String
+                ?? "The backend rejected the request (HTTP \(response.statusCode))."
+            throw BackendClientError.server(statusCode: response.statusCode, detail: detail)
+        }
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw BackendClientError.invalidResponse
+        }
+        return json
     }
 }
 
