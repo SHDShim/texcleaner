@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,15 +8,19 @@ dynamic = ["version"]
 description = "A GUI front-end for cleaning LaTeX track changes"
 readme = "README.md"
 license = "GPL-3.0-or-later"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 authors = [
     {name = "Dan Shim"}
+]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
 ]
 requires-python = ">=3.10"
 dependencies = [
     "arxiv-latex-cleaner",
-    "fastapi",
-    "uvicorn",
-    "pydantic",
+    "customtkinter>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -24,19 +28,26 @@ dev = [
     "build",
     "twine",
     "pytest",
-    "httpx"
+]
+
+packaging = [
+    "pyinstaller>=6.0",
 ]
 
 [project.scripts]
 texcleaner = "texcleaner.__main__:main"
 
+[project.urls]
+Homepage = "https://github.com/shdshim/texcleaner"
+Repository = "https://github.com/shdshim/texcleaner"
+Issues = "https://github.com/shdshim/texcleaner/issues"
+
 [tool.setuptools]
 packages = ["texcleaner"]
-py-modules = ["version"]
-package-data = {texcleaner = ["scripts/**/*.py", "scripts/**/*.tex", "scripts/**/*.txt", "scripts/**/*.sh"]}
+package-data = {texcleaner = ["scripts/**/*.py", "assets/icons/*.png", "assets/icons/*.ico", "assets/icons/*.icns"]}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
 [tool.setuptools.dynamic]
-version = {attr = "version.__version__"}
+version = {attr = "texcleaner.version.__version__"}

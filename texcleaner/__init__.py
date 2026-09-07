@@ -7,7 +7,7 @@ Supports cleaning track changes from:
 - arXiv submission preparation
 """
 
-from version import __version__
+from .version import __version__
 from .wrapper import (
     clean_trackchanges,
     clean_changes,
@@ -15,7 +15,6 @@ from .wrapper import (
     generate_output_filename,
     detect_cleaning_module
 )
-from .job_store import JobStore
 
 __all__ = [
     "clean_trackchanges",
@@ -23,6 +22,5 @@ __all__ = [
     "clean_arxiv",
     "generate_output_filename",
     "detect_cleaning_module",
-    "JobStore",
     "__version__",
 ]

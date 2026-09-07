@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 # acceptchanges3: process trackchanges.sty commands.
-# Copyright (C) 2006 Felix Salfner.
-# This program is free software under the GNU General Public License.
-# It is distributed without warranty; see the project LICENSE file.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Based on accept.py version 0.2 (2006-05-31).
+# Copyright (C) 2006 Felix Salfner (salfner@informatik.hu-berlin.de).
+# The original was licensed under GPL-2.0-or-later.
+#
+# Modified in 2026 by Dan Shim and TeXCleaner contributors: converted to
+# Python 3, replaced the line-oriented parser with recursive parsing for
+# multiline/nested commands, and added reject and UTF-8-safe batch behavior.
+# This modified version is distributed under GPL-3.0-or-later, as permitted
+# by the original license's "or any later version" clause.
+# It is distributed without warranty; see the repository LICENSE file.
 
 """Accept or reject trackchanges.sty commands in a LaTeX document."""
 

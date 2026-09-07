@@ -1,92 +1,85 @@
 # TeXCleaner
 
-A GUI front-end for cleaning LaTeX documents of track changes markup.
+TeXCleaner is a cross-platform CustomTkinter application for cleaning LaTeX
+track-changes markup and preparing projects for arXiv submission.
 
 ## Features
 
-TeXCleaner supports cleaning track changes from three different LaTeX packages:
+- Detects and cleans documents using `trackchanges.sty` or `changes.sty`.
+- Keeps either the new or old revision of edited text.
+- Optionally removes annotations and comments.
+- Runs `arxiv-latex-cleaner` with configurable image, PDF, and bibliography
+  options.
+- Writes to a new file or folder by default; replacement must be enabled
+  explicitly.
+- Performs cleaning in a worker thread so the GUI remains responsive.
+- Uses the restored TeXCleaner icon artwork on the application window and
+  includes a Windows multi-resolution `.ico` for future builds.
 
-1. **TrackChanges** - For documents using `trackchanges.sty`
-2. **Changes** - For documents using `changes.sty`
-3. **arXiv** - For preparing documents for arXiv submission
+## Development
 
-## Installation
-
-### From PyPI (Recommended)
-
-```bash
-pip install texcleaner
-```
-
-After installation, you can run the application with:
-
-```bash
-texcleaner
-```
-
-### From Source
+This repository uses the `docflow` conda environment:
 
 ```bash
-git clone https://github.com/yourusername/texcleaner.git
-cd texcleaner
-pip install -e .
+conda activate docflow
+python -m texcleaner
 ```
 
-## Requirements
+The appearance can be selected from the command line:
 
-- Python 3.10+
-- `arxiv-latex-cleaner` (installed automatically with pip)
-- Tkinter for the legacy Python GUI, or macOS 13+ and a `docflow` conda
-  environment for the native SwiftUI application
+```bash
+python -m texcleaner --appearance dark  # default
+python -m texcleaner --version
+```
+
+Run the tests with:
+
+```bash
+conda activate docflow
+python -m pytest
+```
+
+For editable installation in `docflow`:
+
+```bash
+python -m pip install -e .
+```
+
+Future PyInstaller and Windows Inno Setup templates are documented in
+[`packaging/README.md`](packaging/README.md). They are scaffolding only; no
+executable or installer is built during development.
+
+Python 3.10 or newer is required. Runtime dependencies are declared in
+`pyproject.toml`.
 
 ## Usage
 
-1. Run the application:
+For TrackChanges or Changes documents, select a `.tex` file, choose which
+revision to retain, configure the output suffix, and click **Detect & Clean**.
+Automatic detection can be overridden with the Cleaner menu.
 
-```bash
-texcleaner
-```
+For arXiv preparation, select the project folder and configure the graphics,
+bibliography, logging, and output options before clicking **Clean for arXiv**.
 
-   Or if running from source:
+Outputs are created beside the input:
 
-```bash
-python -m texcleaner.app
-```
-
-2. Select your input file or folder:
-   - For **TrackChanges** and **Changes**: Select a `.tex` file
-   - For **arXiv**: Select the project folder containing your LaTeX files
-
-3. Choose the cleaning option:
-   - **Remove TrackChanges**: Accepts all changes and removes annotations from `trackchanges.sty`
-   - **Remove Changes**: Accepts all changes from `changes.sty`
-   - **Clean for arXiv**: Removes comments, resizes images, and organizes files for submission
-
-4. Click **Clean** to process the file
-
-### API mode
-
-The backend API requires a bearer token. Pass one explicitly with
-`--auth-token` or set `TEXCLEANER_AUTH_TOKEN`; do not expose the server on a
-network interface without a protected token.
-
-```bash
-texcleaner --server --auth-token "change-me"
-```
-
-## Output
-
-- **TrackChanges/Changes**: Creates a new file with the selected suffix
-  (default: `-cleaned`)
-- **arXiv**: Creates a new folder with the selected suffix (default:
-  `-cleaned`)
+- `manuscript.tex` becomes `manuscript-cleaned.tex` by default.
+- `project/` becomes `project-cleaned/` by default.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+Copyright © 2026 Dan Shim and TeXCleaner contributors.
+
+TeXCleaner is licensed under the GNU General Public License, version 3 or
+later (`GPL-3.0-or-later`). See [LICENSE](LICENSE). Source distributions must
+retain the license, copyright notices, source availability, and the notices
+for bundled third-party code.
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the provenance,
+licenses, and modification status of bundled code and direct dependencies.
 
 ## Acknowledgments
 
-- `acceptchanges3.py` - Felix Salfner (GPL)
-- `pyMergeChanges.py` - Y. Cui (GPL)
-- `arxiv-latex-cleaner` - Google Research
+- `acceptchanges3.py` — based on work by Felix Salfner
+- `pyMergeChanges.py` — based on work by Yvon Cui
+- `arxiv-latex-cleaner` — Google Research

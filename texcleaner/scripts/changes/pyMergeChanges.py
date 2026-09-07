@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 # pyMergeChanges: merge commits made with the changes package.
-# Copyright (C) 2018 Y. Cui.
-# This program is free software under the GNU General Public License.
-# It is distributed without warranty; see the project LICENSE file.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2018 Yvon Cui.
+# The original program is licensed under GPL-3.0-or-later.
+#
+# Modified in 2026 by Dan Shim and TeXCleaner contributors: replaced the
+# line-oriented parser with recursive parsing for multiline/nested commands,
+# added comment and escaped-brace handling, and improved validation/errors.
+# This modified version remains GPL-3.0-or-later and is distributed without
+# warranty; see the repository LICENSE file.
 
 """
 Merge commits made with the changes.sty package into plain LaTeX text.

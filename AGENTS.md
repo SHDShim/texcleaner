@@ -23,7 +23,8 @@ TeXCleaner is a GUI front-end for cleaning LaTeX documents of track changes mark
 texcleaner/
 ├── texcleaner/
 │   ├── __main__.py       # Package entry point
-│   ├── app.py            # Main GUI application
+│   ├── app.py            # Cross-platform CustomTkinter application
+│   ├── version.py        # Package version
 │   ├── wrapper.py        # Integration layer for cleaning scripts
 │   └── scripts/
 │       ├── trackchanges-py3/
@@ -59,6 +60,7 @@ Uses `arxiv-latex_cleaner` to clean and organize LaTeX files for arXiv submissio
 All dependencies must be installed in the `docflow` conda environment:
 
 - Python 3.x (via conda)
+- `customtkinter` package
 - `arxiv-latex_cleaner` package
 - Standard library: `tkinter`, `subprocess`, `os`, `shutil`
 
