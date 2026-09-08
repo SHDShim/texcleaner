@@ -7,7 +7,7 @@ project_root = Path(SPECPATH).resolve().parents[1]
 package_root = project_root / "texcleaner"
 
 a = Analysis(
-    [str(package_root / "__main__.py")],
+    [str(project_root / "packaging" / "pyinstaller" / "texcleaner_launcher.py")],
     pathex=[str(project_root)],
     binaries=[],
     datas=[
@@ -16,7 +16,7 @@ a = Analysis(
         (str(project_root / "LICENSE"), "."),
         (str(project_root / "THIRD_PARTY_NOTICES.md"), "."),
     ],
-    hiddenimports=[],
+    hiddenimports=["arxiv_latex_cleaner.__main__"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

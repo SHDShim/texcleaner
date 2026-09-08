@@ -25,6 +25,18 @@ conda activate docflow
 python -m texcleaner
 ```
 
+On Windows, create the same environment from
+[`environment-windows.yml`](environment-windows.yml):
+
+```powershell
+conda env create -f environment-windows.yml
+conda activate docflow
+python -m texcleaner
+```
+
+See [Windows conda setup](docs/windows_conda_setup.md) for verification and
+packaging instructions.
+
 The appearance can be selected from the command line:
 
 ```bash

@@ -3,6 +3,10 @@
 Packaging is prepared but intentionally not run during normal development.
 The `docflow` environment already contains PyInstaller.
 
+On Windows, create or update `docflow` with the repository-level
+`environment-windows.yml` file before building. See
+[`docs/windows_conda_setup.md`](../docs/windows_conda_setup.md).
+
 ## Windows executable
 
 From the repository root on Windows, in the `docflow` environment:

@@ -11,6 +11,7 @@ from texcleaner.wrapper import (
     clean_trackchanges,
     detect_cleaning_module,
     generate_output_filename,
+    get_arxiv_cleaner_cmd,
     is_valid_output_suffix,
 )
 
@@ -96,7 +97,11 @@ class ArxivOptionsTests(unittest.TestCase):
     @patch("texcleaner.wrapper.shutil.which", return_value="/usr/local/bin/arxiv_latex_cleaner")
     def test_graphics_and_bibliography_options_reach_cli(self, _, run):
         def create_cleaner_output(command, **_):
-            input_path = Path(command[1])
+            input_path = next(
+                Path(argument)
+                for argument in command
+                if Path(argument).resolve(strict=False) == Path(temporary_directory).resolve(strict=False)
+            )
             input_path.with_name(f"{input_path.name}_arXiv").mkdir()
             return subprocess.CompletedProcess(command, 0, "", "")
 
@@ -121,6 +126,11 @@ class ArxivOptionsTests(unittest.TestCase):
         self.assertEqual(command[command.index("--pdf_im_resolution") + 1], "300")
         self.assertIn("--keep_bib", command)
         self.assertIn("--verbose", command)
+
+    @patch("texcleaner.wrapper.sys.executable", "TeXCleaner.exe")
+    @patch("texcleaner.wrapper.sys.frozen", True, create=True)
+    def test_frozen_arxiv_command_uses_bundled_executable(self):
+        self.assertEqual(get_arxiv_cleaner_cmd(), ["TeXCleaner.exe", "--run-arxiv-cleaner"])
 
 
 class SafetyAndParserRegressionTests(unittest.TestCase):

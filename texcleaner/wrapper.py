@@ -29,6 +29,16 @@ def get_python_cmd():
     return sys.executable
 
 
+def get_arxiv_cleaner_cmd():
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--run-arxiv-cleaner"]
+
+    arxiv_cleaner_cmd = shutil.which("arxiv_latex_cleaner")
+    if arxiv_cleaner_cmd:
+        return [arxiv_cleaner_cmd]
+    return [get_python_cmd(), "-m", "arxiv_latex_cleaner"]
+
+
 def _canonical(path):
     return Path(path).expanduser().resolve(strict=False)
 
@@ -230,10 +240,6 @@ def clean_arxiv(
     if not is_valid_output_suffix(output_suffix):
         return False, "Output suffix must be non-empty and cannot contain path separators."
 
-    arxiv_cleaner_cmd = shutil.which("arxiv_latex_cleaner")
-    if not arxiv_cleaner_cmd:
-        return False, "arxiv_latex_cleaner not found. Please install it in the docflow environment."
-
     default_output = input_path.with_name(f"{input_path.name}_arXiv")
     cleaned_output = input_path.with_name(f"{input_path.name}{output_suffix}")
     existing_outputs = {default_output, cleaned_output}
@@ -257,7 +263,7 @@ def clean_arxiv(
                 run_input = input_path
                 run_default = default_output
 
-            command = [arxiv_cleaner_cmd, str(run_input)]
+            command = [*get_arxiv_cleaner_cmd(), str(run_input)]
             if resize_images:
                 command.extend(["--resize_images", "--im_size", str(im_size)])
             if compress_pdf:
