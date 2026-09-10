@@ -1,9 +1,12 @@
 import subprocess
+import builtins
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from texcleaner import __main__ as package_main
 from texcleaner.app import validate_folder_path, validate_tex_path
 from texcleaner.wrapper import (
     clean_arxiv,
@@ -12,6 +15,8 @@ from texcleaner.wrapper import (
     detect_cleaning_module,
     generate_output_filename,
     get_arxiv_cleaner_cmd,
+    get_changes_cleaner_cmd,
+    get_trackchanges_cleaner_cmd,
     is_valid_output_suffix,
 )
 
@@ -93,6 +98,35 @@ class ChangesOptionsTests(unittest.TestCase):
 
 
 class ArxivOptionsTests(unittest.TestCase):
+    @patch("texcleaner.__main__.runpy.run_module")
+    def test_frozen_arxiv_marker_is_removed_before_cli_execution(self, run_module):
+        argv = [
+            "TeXCleaner.exe",
+            "--run-arxiv-cleaner",
+            r"C:\paper folder",
+            "--resize_images",
+        ]
+        with patch.object(sys, "argv", argv):
+            package_main.main()
+            self.assertEqual(
+                sys.argv,
+                ["arxiv_latex_cleaner", r"C:\paper folder", "--resize_images"],
+            )
+        run_module.assert_called_once_with("arxiv_latex_cleaner", run_name="__main__")
+
+    @patch("texcleaner.__main__.runpy.run_module")
+    def test_frozen_arxiv_supplies_and_restores_exit_helper(self, run_module):
+        original_exit = getattr(builtins, "exit", None)
+
+        def inspect_exit(*_args, **_kwargs):
+            self.assertIs(builtins.exit, sys.exit)
+
+        run_module.side_effect = inspect_exit
+        with patch.object(sys, "argv", ["TeXCleaner.exe", "--run-arxiv-cleaner", "project"]):
+            package_main.main()
+
+        self.assertIs(getattr(builtins, "exit", None), original_exit)
+
     @patch("texcleaner.wrapper.subprocess.run")
     @patch("texcleaner.wrapper.shutil.which", return_value="/usr/local/bin/arxiv_latex_cleaner")
     def test_graphics_and_bibliography_options_reach_cli(self, _, run):
@@ -131,6 +165,30 @@ class ArxivOptionsTests(unittest.TestCase):
     @patch("texcleaner.wrapper.sys.frozen", True, create=True)
     def test_frozen_arxiv_command_uses_bundled_executable(self):
         self.assertEqual(get_arxiv_cleaner_cmd(), ["TeXCleaner.exe", "--run-arxiv-cleaner"])
+
+
+class FrozenBundledScriptTests(unittest.TestCase):
+    @patch("texcleaner.wrapper.sys.executable", "TeXCleaner.exe")
+    @patch("texcleaner.wrapper.sys.frozen", True, create=True)
+    def test_frozen_cleaner_commands_use_internal_launch_modes(self):
+        self.assertEqual(
+            get_trackchanges_cleaner_cmd(),
+            ["TeXCleaner.exe", "--run-trackchanges-cleaner"],
+        )
+        self.assertEqual(
+            get_changes_cleaner_cmd(),
+            ["TeXCleaner.exe", "--run-changes-cleaner"],
+        )
+
+    @patch("texcleaner.__main__.runpy.run_path")
+    def test_changes_internal_launcher_forwards_only_cleaner_arguments(self, run_path):
+        argv = ["TeXCleaner.exe", "--run-changes-cleaner", "-ah", "input.tex", "output.tex"]
+        with patch.object(sys, "argv", argv):
+            package_main.main()
+            self.assertEqual(sys.argv[1:], ["-ah", "input.tex", "output.tex"])
+        run_path.assert_called_once()
+        self.assertTrue(run_path.call_args.args[0].endswith("pyMergeChanges.py"))
+        self.assertEqual(run_path.call_args.kwargs, {"run_name": "__main__"})
 
 
 class SafetyAndParserRegressionTests(unittest.TestCase):

@@ -1,7 +1,7 @@
-# Future executable and installer packaging
+# Executable and installer packaging
 
-Packaging is prepared but intentionally not run during normal development.
-The `docflow` environment already contains PyInstaller.
+The Windows build helper synchronizes the `docflow` environment, runs the
+tests, and builds the application with PyInstaller.
 
 On Windows, create or update `docflow` with the repository-level
 `environment-windows.yml` file before building. See
@@ -9,14 +9,17 @@ On Windows, create or update `docflow` with the repository-level
 
 ## Windows executable
 
-From the repository root on Windows, in the `docflow` environment:
+From the repository root on Windows:
 
 ```powershell
-python -m PyInstaller packaging/pyinstaller/TeXCleaner-windows.spec --clean
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1
 ```
 
 This creates an onedir application in `dist/TeXCleaner/` and uses the
-multi-resolution icon at `texcleaner/assets/icons/texcleaner.ico`.
+multi-resolution icon and Windows version metadata. The entire
+`dist/TeXCleaner/` directory is required when distributing the portable app.
+Both the executable and installer use the repository icon at
+`texcleaner/assets/icons/texcleaner.ico`; the build stops if it is missing.
 
 ## macOS application
 
@@ -31,14 +34,23 @@ This creates `dist/TeX Cleaner.app` and uses
 
 ## Windows installer
 
-Install Inno Setup separately on the Windows build machine, then open
-`packaging/windows/TeXCleaner.iss` in Inno Setup after building the PyInstaller
-directory. The installer script is a template and has not been executed here.
+Install Inno Setup 6 separately, then build both artifacts with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1 -Installer
+```
+
+The per-user installer is written to `dist/installer/`. It does not require
+administrator privileges. The helper finds Conda and Inno Setup in their
+standard locations; use `-CondaExe C:\path\to\conda.exe` for a custom install.
+Use `-SkipEnvironmentUpdate` or `-SkipTests` only for a deliberate faster
+rebuild.
 
 ## Release notes
 
 - Build executables on the target operating system; PyInstaller is not a
-  cross-compiler.
+  cross-compiler. A build contains native binaries for the build machine's
+  Windows architecture.
 - Keep `LICENSE` and `THIRD_PARTY_NOTICES.md` with every redistributable
   artifact.
 - Before distributing an artifact, review the exact dependency versions and

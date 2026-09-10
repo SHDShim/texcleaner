@@ -57,9 +57,14 @@ For editable installation in `docflow`:
 python -m pip install -e .
 ```
 
-Future PyInstaller and Windows Inno Setup templates are documented in
-[`packaging/README.md`](packaging/README.md). They are scaffolding only; no
-executable or installer is built during development.
+Windows executable and Inno Setup installer builds are documented in
+[`packaging/README.md`](packaging/README.md). Build the executable with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1
+```
+
+Add `-Installer` to also create the installer (Inno Setup 6 is required).
 
 Python 3.10 or newer is required. Runtime dependencies are declared in
 `pyproject.toml`.

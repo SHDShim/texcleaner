@@ -39,6 +39,18 @@ def get_arxiv_cleaner_cmd():
     return [get_python_cmd(), "-m", "arxiv_latex_cleaner"]
 
 
+def get_trackchanges_cleaner_cmd():
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--run-trackchanges-cleaner"]
+    return [get_python_cmd(), str(ACCEPTCHANGES_SCRIPT)]
+
+
+def get_changes_cleaner_cmd():
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--run-changes-cleaner"]
+    return [get_python_cmd(), str(PYMERGECHANGES_SCRIPT)]
+
+
 def _canonical(path):
     return Path(path).expanduser().resolve(strict=False)
 
@@ -129,7 +141,7 @@ def clean_trackchanges(
         return False, output_or_message
     output_path = output_or_message
 
-    command = [get_python_cmd(), str(ACCEPTCHANGES_SCRIPT), "-c", "--infile", str(input_path)]
+    command = [*get_trackchanges_cleaner_cmd(), "-c", "--infile", str(input_path)]
     if not accept_changes:
         command.append("--reject")
     if remove_annotations:
@@ -180,7 +192,7 @@ def clean_changes(
 
     with _output_lock(output_path):
         temporary_path = _temporary_output(output_path)
-        command = [get_python_cmd(), str(PYMERGECHANGES_SCRIPT), f"-{action_flags}", str(input_path), str(temporary_path)]
+        command = [*get_changes_cleaner_cmd(), f"-{action_flags}", str(input_path), str(temporary_path)]
         try:
             result, error = _run_cleaner(command, CHANGES_DIR, callback)
             if error:

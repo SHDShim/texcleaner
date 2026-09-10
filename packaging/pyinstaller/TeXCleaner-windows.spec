@@ -1,22 +1,29 @@
-"""PyInstaller onedir specification for a future Windows build."""
+"""PyInstaller onedir specification for the Windows desktop application."""
 
 from pathlib import Path
+
+from PyInstaller.utils.hooks import collect_all
 
 
 project_root = Path(SPECPATH).resolve().parents[1]
 package_root = project_root / "texcleaner"
 
+customtkinter_datas, customtkinter_binaries, customtkinter_hiddenimports = collect_all("customtkinter")
+arxiv_datas, arxiv_binaries, arxiv_hiddenimports = collect_all("arxiv_latex_cleaner")
+
 a = Analysis(
     [str(project_root / "packaging" / "pyinstaller" / "texcleaner_launcher.py")],
     pathex=[str(project_root)],
-    binaries=[],
+    binaries=[*customtkinter_binaries, *arxiv_binaries],
     datas=[
         (str(package_root / "assets"), "texcleaner/assets"),
         (str(package_root / "scripts"), "texcleaner/scripts"),
         (str(project_root / "LICENSE"), "."),
         (str(project_root / "THIRD_PARTY_NOTICES.md"), "."),
+        *customtkinter_datas,
+        *arxiv_datas,
     ],
-    hiddenimports=["arxiv_latex_cleaner.__main__"],
+    hiddenimports=[*customtkinter_hiddenimports, *arxiv_hiddenimports],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -43,6 +50,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=str(package_root / "assets" / "icons" / "texcleaner.ico"),
+    version=str(project_root / "packaging" / "pyinstaller" / "version_info.txt"),
 )
 
 coll = COLLECT(

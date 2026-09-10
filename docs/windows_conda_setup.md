@@ -60,11 +60,11 @@ texcleaner --version
 
 ## Build the Windows application
 
-The Windows PyInstaller specification is included in the repository. Build it
-from the repository root after activating `docflow`:
+The build helper finds Conda, updates `docflow` from
+`environment-windows.yml`, runs tests, and invokes PyInstaller:
 
 ```powershell
-python -m PyInstaller packaging/pyinstaller/TeXCleaner-windows.spec --clean
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1
 ```
 
 The output is written to:
@@ -73,24 +73,16 @@ The output is written to:
 dist\TeXCleaner\
 ```
 
-You can also run the full Windows build helper from the repository root:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1
-```
-
 To build the installer too:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File packaging\windows\build_windows.ps1 -Installer
 ```
 
-To build the installer, install Inno Setup on the Windows build machine and
-open:
-
-```text
-packaging\windows\TeXCleaner.iss
-```
+The installer requires Inno Setup 6 and is written to `dist\installer\`.
+It installs per user, so installation itself does not require administrator
+privileges. Pass `-CondaExe C:\path\to\conda.exe` if Conda is installed in a
+non-standard location.
 
 ## Troubleshooting
 

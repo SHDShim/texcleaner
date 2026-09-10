@@ -1,9 +1,9 @@
-; Future Windows installer template for Inno Setup.
-; Build the PyInstaller onedir application first; this file is not executed
-; automatically by the Python development workflow.
+; TeXCleaner per-user installer. The build helper supplies MyAppVersion.
 
 #define MyAppName "TeXCleaner"
-#define MyAppVersion "0.7.0"
+#ifndef MyAppVersion
+#define MyAppVersion "0.8.0"
+#endif
 #define MyAppPublisher "Dan Shim"
 #define MyAppURL "https://github.com/shdshim/texcleaner"
 #define MyAppExeName "TeXCleaner.exe"
@@ -16,16 +16,24 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+PrivilegesRequired=lowest
 OutputDir=..\..\dist\installer
 OutputBaseFilename=TeXCleaner-{#MyAppVersion}-Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesInstallIn64BitMode=x64
+SetupIconFile=..\..\texcleaner\assets\icons\texcleaner.ico
 LicenseFile=..\..\LICENSE
+UninstallDisplayIcon={app}\{#MyAppExeName}
+VersionInfoVersion={#MyAppVersion}.0
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName} installer
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
+CloseApplications=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -35,7 +43,6 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 
 [Files]
 Source: "..\..\dist\TeXCleaner\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
